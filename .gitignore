@@ -1,0 +1,4 @@
+/vendor/
+/logs/*
+/docs/*
+!/logs/README.md
