@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Register osmap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <h3>Register with OSMAP</h3>
+    <p>
+        Access to OSMAP is free, however this servers resources are shared by many users.<br>
+        In order to allocate the resources in a fair way, each user needs to be registered.<br>
+        Please enter your email in the box and click on [Register], you will receive an mail<br>
+        with your personal key.<br>
+        This email address will also be used for OSMAP release notes or server maintenace messages.
+
+    </p>
+
+    <form action="/register">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+
+    <h3>User keys</h3>
+    <p>
+        Key=da98c7a446274dbe82b8f13667848952 provides shared access for unregistered users.
+    </p>
+    <?php echo $this->fetch('termsofuse.phtml'); ?>
+
+</div>
+
+</body>
+</html>

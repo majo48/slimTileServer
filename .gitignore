@@ -1,4 +1,12 @@
+# Slim defaults
 /vendor/
 /logs/*
 /docs/*
 !/logs/README.md
+
+# IDE files
+/.idea/*
+
+# unversioned files
+docs/
+
