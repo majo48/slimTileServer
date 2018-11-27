@@ -2,8 +2,14 @@
 
 use Slim\Http\Request;
 use Slim\Http\Response;
+use App\api\v1\Geocode;
+use App\api\Register;
 
 // Routes
+
+$app->get('/api/v1/geocode/{text}', '\App\api\v1\Geocode:index');
+
+$app->get('/api/v1/reversegeocode/{text}', '\App\api\v1\ReverseGeocode:index');
 
 $app->get('/{_:|about}',
     function (Request $request, Response $response, array $args)
@@ -26,6 +32,10 @@ $app->get('/register',
         // check for email
         $email = $request->getQueryParam('email');
         if (!empty($email)){
+            // register email in the app
+            $register = new Register($this);
+            $register->registerEmail($email);
+            // thank user
             return $this->renderer->render($response, 'thanks.phtml', $args);
         }
         // Render register view
