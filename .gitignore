@@ -6,6 +6,8 @@
 
 # IDE files
 /.idea/*
+.idea/*
+/.idea/workspace.xml
 
 # unversioned files
 docs/
