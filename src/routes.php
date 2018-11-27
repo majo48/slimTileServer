@@ -10,8 +10,12 @@ $app->get('/{_:|about}',
     {
         // Sample log message
         $this->logger->info("Slim-Skeleton (or about)");
+
         // Render index view
-        return $this->renderer->render($response, 'index.phtml', $args);
+        return $this->renderer->render($response, 'index.phtml', [
+            'url' => $request->getUri()->getScheme().'://'.
+                     $request->getUri()->getHost().'/register'
+        ]);
     });
 
 $app->get('/register',
