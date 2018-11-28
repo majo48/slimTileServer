@@ -1,7 +1,6 @@
 # Slim defaults
 /vendor/
 /logs/*
-/docs/*
 !/logs/README.md
 
 # IDE files
@@ -10,5 +9,5 @@
 /.idea/workspace.xml
 
 # unversioned files
-docs/
-
+/docs/*
+/secrets/*
