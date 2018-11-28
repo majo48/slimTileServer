@@ -10,4 +10,4 @@
 
 # unversioned files
 /docs/*
-/secrets/*
+/src/api/Secrets.php
