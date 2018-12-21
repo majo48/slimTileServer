@@ -8,9 +8,20 @@
 
 namespace App\api\v1;
 
+use App\api\v1\TermsOfUse;
 
+/**
+ * Class ReverseGeocode
+ * @package App\api\v1
+ *
+ * Route pattern: /api/v1/reversegeocode?lat=AAA&lng=BBB&key=CCC
+ */
 class ReverseGeocode
 {
+    use TermsOfUse{
+        checkTermsOfUse as protected;
+    }
+
     /** @var Container $container */
     protected   $container;
 
@@ -21,12 +32,13 @@ class ReverseGeocode
 
     public function index($request, $response, $args)
     {
-        $coordinates = $args['text'];
-        $responseArray = [
-            'status_code' => 500,
-            'status_text' => 'not implemented yet',
-            'nounce' => 0
-        ];
-        echo json_encode($responseArray);
+        $ipAddress = $request->getAttribute('ip_address');
+        $queryLat = $request->getQueryParam('lat');
+        $queryLng = $request->getQueryParam('lng');
+        $queryKey = $request->getQueryParam('key');
+
+        $response = $this->checkTermsOfUse($queryKey);
+
+        echo json_encode($response);
     }
 }

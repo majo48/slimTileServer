@@ -4,8 +4,56 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bf9e5c255984d876dd7cc7c5054be630",
+    "content-hash": "1e63a543b08efb821bbaf7462486f5b6",
     "packages": [
+        {
+            "name": "akrabat/ip-address-middleware",
+            "version": "0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/akrabat/ip-address-middleware.git",
+                "reference": "558ae43c088ee456c71148c4e3bbd9531cd1913a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/akrabat/ip-address-middleware/zipball/558ae43c088ee456c71148c4e3bbd9531cd1913a",
+                "reference": "558ae43c088ee456c71148c4e3bbd9531cd1913a",
+                "shasum": ""
+            },
+            "require": {
+                "psr/http-message": "^1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "squizlabs/php_codesniffer": "^2.3",
+                "zendframework/zend-diactoros": "^1.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "RKA\\Middleware\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Rob Allen",
+                    "email": "rob@akrabat.com",
+                    "homepage": "http://akrabat.com"
+                }
+            ],
+            "description": "PSR-7 Middleware that determines the client IP address and stores it as an ServerRequest attribute",
+            "homepage": "http://github.com/akrabat/rka-ip-address-middleware",
+            "keywords": [
+                "IP",
+                "middleware",
+                "psr7"
+            ],
+            "time": "2018-02-18T12:58:40+00:00"
+        },
         {
             "name": "container-interop/container-interop",
             "version": "1.2.0",
