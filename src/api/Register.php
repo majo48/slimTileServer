@@ -30,10 +30,11 @@ class Register
         $email = $request->getQueryParam('email');
         if (!empty($email)){
             // register email in the app
-            $errmsg = $this->registerEmail($email);
+            $guid = $this->getGUID(false); // create GUID
+            $errmsg = $this->sendMail($email, $guid); // send email with GUID
 
             // register log message
-            $this->container->logger->info("registered ".$email);
+            $this->container->logger->info("registered ".$email.' with key '.$guid);
 
             // thank user
             return $this->container->renderer->render($response, 'thanks.phtml', $args);
@@ -41,18 +42,6 @@ class Register
 
         // Render register view
         return $this->container->renderer->render($response, 'register.phtml', $args);
-    }
-
-    /** --------------------
-     * Register constructor.
-     * @param $email string
-     * @return null|string
-     */
-    private function registerEmail($email)
-    {
-        $guid = $this->getGUID(false); // create GUID
-        $errmsg = $this->sendMail($email, $guid); // send email with GUID
-        return $errmsg;
     }
 
     /**
