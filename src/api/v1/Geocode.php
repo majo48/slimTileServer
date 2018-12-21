@@ -11,9 +11,12 @@ namespace App\api\v1;
 
 class Geocode
 {
-    public function __construct($app)
+    /** @var Container $container */
+    protected   $container;
+
+    public function __construct($container)
     {
-        $this->app = $app;
+        $this->container = $container;
     }
 
     public function index($request, $response, $args)

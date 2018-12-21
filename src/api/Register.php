@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: mart
- * Date: 27/11/18
- * Time: 14:22
+ * Date: 2018-12-21
+ * Time: 07:09
  */
 
 namespace App\api;
@@ -11,25 +11,36 @@ namespace App\api;
 use Slim\Container;
 use PHPMailer\PHPMailer\PHPMailer;
 
-/**
- * Uses phpmailer and oauth2-google (needed for Google XOAUTH2 authentication)
- *
- * Class Register
- * @package App\api
- */
 class Register
 {
-    protected $email;
+    /** @var Container $container */
+    protected   $container;
 
-    protected $container;
-
-    /** --------------------
-     * Register constructor.
-     * @param $c Container
-     */
-    public function __construct($c)
+    public function __construct($container)
     {
-        $this->container = $c;
+        $this->container = $container;
+    }
+
+    public function index($request, $response, $args)
+    {
+        // request log message
+        $this->container->logger->info("/register request");
+
+        // check for email
+        $email = $request->getQueryParam('email');
+        if (!empty($email)){
+            // register email in the app
+            $errmsg = $this->registerEmail($email);
+
+            // register log message
+            $this->container->logger->info("registered ".$email);
+
+            // thank user
+            return $this->container->renderer->render($response, 'thanks.phtml', $args);
+        }
+
+        // Render register view
+        return $this->container->renderer->render($response, 'register.phtml', $args);
     }
 
     /** --------------------
@@ -37,7 +48,7 @@ class Register
      * @param $email string
      * @return null|string
      */
-    public function registerEmail($email)
+    private function registerEmail($email)
     {
         $guid = $this->getGUID(false); // create GUID
         $errmsg = $this->sendMail($email, $guid); // send email with GUID
@@ -168,5 +179,4 @@ class Register
         }
         return $errmsg;
     }
-
 }
