@@ -11,3 +11,4 @@
 # unversioned files
 /docs/*
 /src/api/Confidential.php
+/data/*

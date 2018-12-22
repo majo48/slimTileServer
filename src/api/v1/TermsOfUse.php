@@ -8,7 +8,6 @@
 
 namespace App\api\v1;
 
-
 trait TermsOfUse
 {
     /**

@@ -9,6 +9,7 @@
 namespace App\api\v1;
 
 use App\api\v1\TermsOfUse;
+use App\api\v1\GeoLocation;
 
 /**
  * Class Geocode
@@ -37,6 +38,8 @@ class Geocode
         $queryKey = $request->getQueryParam('key');
 
         $response = $this->checkTermsOfUse($queryKey);
+
+        $geoLocation = new GeoLocation($ipAddress);
 
         echo json_encode($response);
     }
