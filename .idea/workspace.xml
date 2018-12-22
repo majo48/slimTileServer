@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="740c7690-1c3f-4b8a-94d6-2df982b7239c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/api/v1/TermsOfUse.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/slimTileServer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/slimTileServer.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/v1/Geocode.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/v1/Geocode.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/v1/ReverseGeocode.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/v1/ReverseGeocode.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/middleware.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -76,7 +67,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/api/v1/Geocode.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
+            <state relative-caret-position="-3">
               <caret line="16" selection-start-line="16" selection-end-line="16" />
             </state>
           </provider>
@@ -85,8 +76,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/api/v1/TermsOfUse.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="975">
-              <caret line="70" column="31" selection-start-line="70" selection-start-column="31" selection-end-line="70" selection-end-column="31" />
+            <state relative-caret-position="265">
+              <caret line="23" column="5" lean-forward="true" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -94,8 +85,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/api/v1/ReverseGeocode.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="259">
-              <caret line="36" column="17" selection-start-line="36" selection-start-column="17" selection-end-line="36" selection-end-column="17" />
+            <state relative-caret-position="267">
+              <caret line="37" selection-start-line="37" selection-end-line="37" />
             </state>
           </provider>
         </entry>
@@ -147,8 +138,8 @@
         <option value="$PROJECT_DIR$/src/middleware.php" />
         <option value="$PROJECT_DIR$/src/routes.php" />
         <option value="$PROJECT_DIR$/src/api/v1/Geocode.php" />
-        <option value="$PROJECT_DIR$/src/api/v1/ReverseGeocode.php" />
         <option value="$PROJECT_DIR$/src/api/v1/TermsOfUse.php" />
+        <option value="$PROJECT_DIR$/src/api/v1/ReverseGeocode.php" />
       </list>
     </option>
   </component>
@@ -337,7 +328,7 @@
       <workItem from="1545367736679" duration="996000" />
       <workItem from="1545368907685" duration="8110000" />
       <workItem from="1545395507430" duration="3754000" />
-      <workItem from="1545399459964" duration="1899000" />
+      <workItem from="1545399459964" duration="2795000" />
     </task>
     <task id="LOCAL-00001" summary="Added GUI for /register&#10;The GUI queries the user for an email address. If given, the user is &#10;thanked. Both pages supply explanations and the Terms of Use (englisch).">
       <created>1543257522879</created>
@@ -416,11 +407,18 @@
       <option name="project" value="LOCAL" />
       <updated>1545374750535</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Added terms of use&#10;Added TermsOfUse checks for usage of the interface. &#10;Added new bundle for detecting the client ip address.">
+      <created>1545401363092</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1545401363092</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="80446000" />
+    <option name="totallyTimeSpent" value="81342000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -698,13 +696,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/middleware.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" selection-start-line="3" selection-end-line="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/logs/app.log">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -732,24 +723,31 @@
     <entry file="file://$PROJECT_DIR$/src/dependencies.php">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/v1/Geocode.php">
+    <entry file="file://$PROJECT_DIR$/src/middleware.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="16" selection-start-line="16" selection-end-line="16" />
+        <state relative-caret-position="45">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/v1/ReverseGeocode.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="36" column="17" selection-start-line="36" selection-start-column="17" selection-end-line="36" selection-end-column="17" />
+        <state relative-caret-position="267">
+          <caret line="37" selection-start-line="37" selection-end-line="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/v1/Geocode.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/v1/TermsOfUse.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="975">
-          <caret line="70" column="31" selection-start-line="70" selection-start-column="31" selection-end-line="70" selection-end-column="31" />
+        <state relative-caret-position="265">
+          <caret line="23" column="5" lean-forward="true" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
         </state>
       </provider>
     </entry>
