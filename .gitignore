@@ -3,10 +3,12 @@
 /logs/*
 !/logs/README.md
 
-# IDE files
-/.idea/*
-.idea/*
-/.idea/workspace.xml
+# User specific stuff (Jetbrains default)
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
 
 # unversioned files
 /docs/*
