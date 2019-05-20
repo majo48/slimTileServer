@@ -1,0 +1,25 @@
+[webserver]
+tileserver.ch
+
+[webserver:vars]
+isDev=True
+
+# remote server access
+remote_username=mart
+remote_hostname=tileserver.ch
+
+# github repository access
+deployment_git_url=https://github.com/majo48/slimTileServer
+deployment_git_branch=master
+
+# the following credentials are kept in vault.yml
+
+#mysql database credentials
+#mysql_db_name=secret
+#mysql_user_name=secret
+#mysql_user_password=secret
+#mysql_root_password=secret
+
+#external mail account credentials
+#mail_user_name=secret
+#mail_user_password=secret
