@@ -1,7 +1,8 @@
 ---
-# This will install python2 if missing,
-# but checks first so no expensive repeated apt updates
-# Credit to: gwillem@gmail.com
+# This will test for python2, it will fail if not found
+# upgrade manually, remove any other instances other than python 2.6!
 
-- name: install python 3, if missing
-  raw: sudo test -e /usr/bin/python3 || (sudo apt-get -y update && sudo apt-get install -y python-minimal)
+- name: check for python 2
+  raw: sudo test -e /usr/bin/python
+  register: cmd_result
+  failed_when: cmd_result.rc == 0

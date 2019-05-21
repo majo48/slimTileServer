@@ -3,16 +3,10 @@
 /logs/*
 !/logs/README.md
 
-# User specific stuff (Jetbrains default)
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
-
 # unversioned files
+.idea/
 /docs/*
 /src/api/Confidential.php
 /data/*
 /ansible/vault.password
-/.idea/workspace.xml
+
