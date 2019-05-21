@@ -1,0 +1,44 @@
+---
+# This will test for python2, it will fail if not found
+# upgrade manually, remove any other instances other than python 2.6!
+- name: check for python 2
+  command: "python -V"
+  register: cmd_result
+  failed_when: cmd_result.rc != 0
+
+# install Apache, MySql and PHP
+- name: Update packages
+  command: "apt-get update"
+
+# Server version: Apache/2.4.29 (Ubuntu)
+# mysql  Ver 14.14 Distrib 5.7.26, for Linux (x86_64)
+# PHP 7.2.17-0ubuntu0.18.04.1 (cli)
+- name: install lamp stack
+  apt:
+    pkg:
+      - apache2
+      - mysql-server
+      - php7.2
+      - php7.2-mysql
+    state: present
+    update_cache: yes
+
+- name: start apache service
+  service:
+    name: apache2
+    state: started
+    enabled: yes
+
+- name: start mysql service
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+
+# Check that a page returns a status 200
+- uri:
+    url: http://tileserver.ch
+    return_content: yes
+    force: yes
+  register: webpage
+

@@ -1,0 +1,10 @@
+---
+# This will test for php, it will fail if not found
+- name: check for PHP 7
+  command: "php -v"
+  register: cmd_result
+  failed_when: cmd_result.rc != 0
+
+- debug: msg={{ cmd_result.stdout }}
+
+
