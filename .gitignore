@@ -3,8 +3,12 @@
 /logs/*
 !/logs/README.md
 
-# unversioned files
+# see PhpStorm Issue IDEA-148109.2019.1
 .idea/
+/.idea/
+
+
+# unversioned files
 /docs/*
 /src/api/Confidential.php
 /data/*
