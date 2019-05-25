@@ -1,10 +1,98 @@
 ---
-# This will test for php, it will fail if not found
+# Test for php (prerequisite), fail if not found
 - name: check for PHP 7
   command: "php -v"
   register: cmd_result
   failed_when: cmd_result.rc != 0
-
 - debug: msg={{ cmd_result.stdout }}
 
+# make destination folder (repository)
+- name: make destination folder
+  file:
+    path: "{{remote_dir}}"
+    state: directory
 
+# set osx source folderName (fully qualified)
+- name: read username
+  set_fact:
+    userName: "{{ lookup('env', 'USER') }}"
+- debug: msg="{{userName}}"
+- name: set source foldername
+  set_fact:
+    source_dir: "/Users/{{userName}}/projects/{{project_dir}}"
+- debug: msg="{{source_dir}}"
+
+# Copy the development environment to the remote server:
+#   - Any changes in vendor code (composer) shall be implemented in OSX
+#   - Any changes in the source code shall be implemented in OSX
+#   - Any changes in the source code are committed to the GitHub repository
+#
+- name: copy the local repo to remote repo
+  synchronize:
+    src: "{{source_dir}}/"
+    dest: "{{remote_dir}}"
+    mode: push
+# (approx. 10 seconds)
+
+# Set owner, group and permissions
+#
+- name: recursively change owner, group, mode of directory
+  file:
+    path: "{{remote_dir}}"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+    mode: '2775'
+
+# Copy the template of the virtual host file (to the remote)
+#
+- name: set virtual host filename
+  set_fact:
+    virtual_host: "/etc/apache2/sites-available/{{remote_hostname}}.conf"
+- debug: msg="{{virtual_host}}"
+- name: Copy apache virtual host config file
+  template:
+    src: VirtualHost.conf
+    dest: "{{virtual_host}}"
+    owner: root
+    mode: 0644
+
+# Upgrade the virtual host file (in the remote) with ansible variables
+#
+- name: set document root in virtual host file
+  lineinfile:
+    dest: "{{virtual_host}}"
+    regexp: ^.*?@@DocumentRoot
+    line: "    DocumentRoot \"{{remote_dir}}/public\""
+- name: set server name in virtual host file
+  lineinfile:
+    dest: "{{virtual_host}}"
+    regexp: ^.*?@@ServerName
+    line: "    ServerName {{remote_hostname}}"
+- name: set server alias in virtual host file
+  lineinfile:
+    dest: "{{virtual_host}}"
+    regexp: ^.*?@@ServerAlias
+    line: "    ServerAlias www.{{remote_hostname}}"
+- name: set directory in virtual host file
+  lineinfile:
+    dest: "{{virtual_host}}"
+    regexp: ^.*?@@Directory
+    line: "    <Directory \"{{remote_dir}}/public\">"
+
+# Restart the apache 2.4 service
+#
+- name: disable default config
+  command: "a2dissite 000-default.conf"
+
+- name: enable virtual host config
+  command: "a2ensite {{remote_hostname}}.conf"
+
+- name: enable apache mod_rewrite
+  command: "a2enmod rewrite"
+
+- name: restart apache service
+  command: "systemctl restart apache2"
+
+# finished

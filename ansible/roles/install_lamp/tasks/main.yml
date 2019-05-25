@@ -35,10 +35,5 @@
     state: started
     enabled: yes
 
-# Check that a page returns a status 200
-- uri:
-    url: http://tileserver.ch
-    return_content: yes
-    force: yes
-  register: webpage
+# finished
 

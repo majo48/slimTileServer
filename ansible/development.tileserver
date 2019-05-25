@@ -12,6 +12,10 @@ remote_hostname=tileserver.ch
 deployment_git_url=https://github.com/majo48/slimTileServer
 deployment_git_branch=master
 
+# folder management
+project_dir=slimTileServer
+remote_dir=/srv/slim
+
 # the following credentials are kept in vault.yml
 
 #mysql database credentials
