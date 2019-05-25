@@ -1,11 +1,13 @@
 # SlimTileServer
 
-Welcome to the slimTileServer wiki! This is an open source project, starting November 2018:
+Welcome to the slimTileServer GitHub repository! 
+
+This is an open source project, starting November 2018:
 
 **Scope**:
 
 (Reverse) Geocoding app with:
-  * Open Address swiss data (ch.bfs.gebaeude_wohnungs_register)
+  * Open Address, swiss data (ch.bfs.gebaeude_wohnungs_register)
   * and some more
 
 Client software with:
@@ -13,9 +15,10 @@ Client software with:
 * Javascript/ jQuery library
 
 Server software with:
-* PostgreSQL
 * Slim Framework
-* PHP 
+* LAMP: Ubuntu, Apache2, MySQL, PHP 
+* PostgreSQL
+* ~~Tile server: mapnik, mapserver~~
 
 Deployed with Ansible.
 
