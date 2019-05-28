@@ -1,0 +1,8 @@
+---
+- hosts: webserver
+  remote_user: "{{ remote_username }}"
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+  roles:
+    - install_application

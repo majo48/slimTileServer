@@ -1,11 +1,4 @@
 ---
-# This will test for python2, it will fail if not found
-# upgrade manually, remove any other instances other than python 2.6!
-- name: check for python 2
-  command: "python -V"
-  register: cmd_result
-  failed_when: cmd_result.rc != 0
-
 # install Apache, MySql and PHP
 - name: Update packages
   command: "apt-get update"
@@ -13,6 +6,9 @@
 # Server version: Apache/2.4.29 (Ubuntu)
 # mysql  Ver 14.14 Distrib 5.7.26, for Linux (x86_64)
 # PHP 7.2.17-0ubuntu0.18.04.1 (cli)
+# Xdebug v2.6.0 copyright Derrick Rethans
+# psql (PostgreSQL) 10.8
+#
 - name: install lamp stack
   apt:
     pkg:
@@ -20,6 +16,9 @@
       - mysql-server
       - php7.2
       - php7.2-mysql
+      - php-xdebug
+      - postgresql
+      - postgresql-contrib
     state: present
     update_cache: yes
 
