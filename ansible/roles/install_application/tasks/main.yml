@@ -1,5 +1,6 @@
 ---
 # Test for php (prerequisite), fail if not found
+#
 - name: check for PHP 7
   command: "php -v"
   register: cmd_result
@@ -7,12 +8,14 @@
 - debug: msg={{ cmd_result.stdout }}
 
 # make destination folder (repository)
+#
 - name: make destination folder
   file:
     path: "{{remote_dir}}"
     state: directory
 
 # set osx source folderName (fully qualified)
+#
 - name: read username
   set_fact:
     userName: "{{ lookup('env', 'USER') }}"
@@ -30,8 +33,9 @@
 - name: copy the local repo to remote repo
   synchronize:
     src: "{{source_dir}}/"
-    dest: "{{remote_dir}}"
-    mode: push
+    dest: "/{{remote_dir}}"
+    delete: yes
+    recursive: yes
 # (approx. 10 seconds)
 
 # Set owner, group and permissions
