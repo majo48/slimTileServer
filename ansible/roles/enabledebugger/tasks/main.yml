@@ -1,0 +1,21 @@
+---
+#enabledebugger tasks
+- name: Copy xdebug config
+  template:
+    src: tixi24_xdebug.ini
+    dest: "/etc/php/7.2/mods-available/xdebug.ini"
+    owner: root
+    mode: 0644
+
+- name: Increase xdebug nesting level
+  lineinfile:
+    dest: /etc/php/7.2/apache2/php.ini
+    regexp: ^xdebug.max_nesting_level
+    line: "xdebug.max_nesting_level=500"
+    state: present
+
+- name: Enable xdebug
+  command: phpenmod xdebug
+
+- name: Restart apache
+  command: "systemctl restart apache2"

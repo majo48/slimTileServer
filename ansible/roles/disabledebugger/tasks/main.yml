@@ -1,0 +1,7 @@
+---
+#disabledebugger tasks
+- name: Disable xdebug
+  command: phpdismod xdebug
+
+- name: restart apache
+  command: "systemctl restart apache2"
