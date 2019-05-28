@@ -11,6 +11,6 @@ $app->get('/api/v1/geocode', '\App\api\v1\Geocode:index');
 
 $app->get('/api/v1/reversegeocode', '\App\api\v1\ReverseGeocode:index');
 
-$app->get('/{_:|about}', '\App\api\About:index');
+$app->get('/{_:|about|home}', '\App\api\About:index');
 
 $app->get('/register', '\App\api\Register:index');
