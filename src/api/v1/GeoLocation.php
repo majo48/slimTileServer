@@ -22,11 +22,17 @@ class GeoLocation
     public $longitude;
     public $errormsg;
 
+    /**
+     * GeoLocation constructor for any IP address. If the IP address is a
+     * private IP address, then a location in Cham/ZG, Switzerland is returned.
+     * @param string $ipadr valis IP4 address
+     */
     public function __construct($ipadr)
     {
-        $ip = ($ipadr!=='::1')? $ipadr: '151.248.223.119'; // localhost
+        $privateIP = '/(^127\.)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)/';
+        $ip = (preg_match($privateIP, $ipadr))? '151.248.223.119': $ipadr;
         try{
-            $filePath = __DIR__.'/../../../data/city/Geolite2-City.mmdb';
+            $filePath = $this->getProjectDir().'/data/city/GeoLite2-City.mmdb';
             $geoip = new Reader($filePath);
             $record = $geoip->city($ip);
 
@@ -43,5 +49,17 @@ class GeoLocation
         catch (\Exception $e){
             $this->errormsg = $e->getMessage();
         }
+    }
+
+    /**
+     * Get the path of the project directory, e.g. '/srv/slim'
+     * @return string
+     */
+    private function getProjectDir()
+    {
+        $dir = __DIR__;
+        $dar = explode('/', $dir);
+        $root = '/'.$dar[1].'/'.$dar[2];
+        return $root;
     }
 }
