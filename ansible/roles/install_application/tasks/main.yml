@@ -7,7 +7,12 @@
   failed_when: cmd_result.rc != 0
 - debug: msg={{ cmd_result.stdout }}
 
-# make destination folder (repository)
+# Include sensitive information (credentials) here
+#
+- name: bare include (encrypted) credentials
+  include_vars: vault.yml
+
+# Make destination folder (repository)
 #
 - name: make destination folder
   file:
@@ -98,5 +103,44 @@
 
 - name: restart apache service
   command: "systemctl restart apache2"
+
+# Install backup script and credentials
+#
+- name: make backup folder
+  file:
+    path: "{{backup_folder}}"
+    state: directory
+
+- name: recursively change owner, group, mode of backup folder
+  file:
+    path: "{{backup_folder}}"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+    mode: '2775'
+
+- name: set backup script filename
+  set_fact:
+    backup_script: "{{remote_dir}}/runUbuntuMysqlBackup.sh"
+- debug: msg="{{virtual_host}}"
+
+- name: set mysql backup database
+  lineinfile:
+    dest: "{{backup_script}}"
+    regexp: ^.*?MYDATABASE=
+    line: "MYDATABASE={{mysql_db_name}}"
+
+- name: set mysql backup user name
+  lineinfile:
+    dest: "{{backup_script}}"
+    regexp: ^.*?MYUSER=
+    line: "MYUSER={{mysql_user_name}}"
+
+- name: set mysql backup user password
+  lineinfile:
+    dest: "{{backup_script}}"
+    regexp: ^.*?MYPASSWORD=
+    line: "MYDATABASE={{mysql_user_password}}"
 
 # finished

@@ -1,0 +1,5 @@
+---
+# sensitive information in vailt.yml (encrypted)
+# non-sensitive information goes here!
+#
+backup_folder: /srv/backup
