@@ -10,7 +10,6 @@
 
 # unversioned files
 /docs/*
-/src/api/Confidential.php
 /data/*
 /ansible/vault.password
 

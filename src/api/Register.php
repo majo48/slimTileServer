@@ -82,10 +82,8 @@ class Register
     private function sendMail($email, $guid)
     {
         $errmsg = null;
-        $confidential = new Confidential();
-        $mail = $confidential->getMail();
-        $mailUser = $mail['user'];;
-        $mailPassword = $mail['password'];
+        $mailUser = $this->container->settings['custom']['mailUsername'];
+        $mailPassword = $this->container->settings['custom']['mailPassword'];
         $mailBody =
             'Please find enclosed your OSMAP key: '.$guid.'<br><br>'.
             'For information on how to use this key, please check '.
