@@ -50,52 +50,6 @@ class Register
     }
 
     /**
-     * Register the user in the MySQL database.
-     * @param string $username
-     * @param string $userkey
-     */
-    private function registerUser($username, $userkey)
-    {
-        try{
-            $datestring = date('Y-m-d H:i:s');
-            $quote = '"';
-            $pdo = $this->container->get('pdo');
-            $stmt = $pdo->query(
-                "SELECT * FROM termsofuse ".
-                "WHERE username = ".$quote.$username.$quote.';'
-            );
-            $rows = $stmt->fetch();
-
-            if ($rows===false){
-                // the user is not yet registered in the database
-                $sql = "INSERT INTO termsofuse ".
-                    "(username, userkey, registerdate) ".
-                    "VALUES(".$quote.$username.$quote.",".
-                    $quote.$userkey.$quote.",".$quote.$datestring.$quote.");"
-                ;
-                $rows = $pdo->exec($sql);
-            }
-            else {
-                // the user is already registered in the database
-                $sql = "UPDATE termsofuse SET".
-                    " userkey = ".$quote.$userkey.$quote.','.
-                    " registerdate = ".$quote.$datestring.$quote.
-                    " WHERE username = ".$quote.$username.$quote
-                ;
-                $rows = $pdo->exec($sql);
-            }
-            $this->container->logger->info(
-                "persisted ".$username.' with key '.$userkey
-            );
-        }
-        catch (\Exception $e){
-            $this->container->logger->error(
-                "persisted: ".$e
-            );
-        }
-    }
-
-    /**
      * Create GUID (globally unique identifier)
      * Credit: Kristof_Polleunis at yahoo dot com
      * @param $email string
@@ -104,10 +58,12 @@ class Register
     private function getGUID($opt = true)
     {
         if( function_exists('com_create_guid') ){
+            // if extension com_dotnet is installed (best)
             if( $opt ){ return com_create_guid(); }
             else { return trim( com_create_guid(), '{}' ); }
         }
         else {
+            // else alternative (good enough)
             mt_srand( (double)microtime() * 10000 );
             $charid = strtoupper( md5(uniqid(rand(), true)) );
             $hyphen = chr( 45 );    // "-"
@@ -217,4 +173,51 @@ class Register
         }
         return $errmsg;
     }
+
+    /**
+     * Register the user in the MySQL database.
+     * @param string $username
+     * @param string $userkey
+     */
+    private function registerUser($username, $userkey)
+    {
+        try{
+            $datestring = date('Y-m-d H:i:s');
+            $quote = '"';
+            $pdo = $this->container->get('pdo');
+            $stmt = $pdo->query(
+                "SELECT * FROM termsofuse ".
+                "WHERE username = ".$quote.$username.$quote.';'
+            );
+            $rows = $stmt->fetch();
+
+            if ($rows===false){
+                // the user is not yet registered in the database
+                $sql = "INSERT INTO termsofuse ".
+                    "(username, userkey, registerdate) ".
+                    "VALUES(".$quote.$username.$quote.",".
+                    $quote.$userkey.$quote.",".$quote.$datestring.$quote.");"
+                ;
+                $rows = $pdo->exec($sql);
+            }
+            else {
+                // the user is already registered in the database
+                $sql = "UPDATE termsofuse SET".
+                    " userkey = ".$quote.$userkey.$quote.','.
+                    " registerdate = ".$quote.$datestring.$quote.
+                    " WHERE username = ".$quote.$username.$quote
+                ;
+                $rows = $pdo->exec($sql);
+            }
+            $this->container->logger->info(
+                "persisted ".$username.' with key: '.$userkey
+            );
+        }
+        catch (\Exception $e){
+            $this->container->logger->error(
+                "persisted: ".$username.' with error: '.$e
+            );
+        }
+    }
+
 }
