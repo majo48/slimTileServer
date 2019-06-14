@@ -22,3 +22,8 @@ echo "PHP version:"
 php -v
 
 echo "---"
+echo "SLIM framework"
+cd /srv/slim
+php composer.phar show
+
+echo "---"
