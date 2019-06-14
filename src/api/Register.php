@@ -8,6 +8,7 @@
 
 namespace App\api;
 
+use PDO;
 use Slim\Container;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -29,6 +30,7 @@ class Register
         // check for email
         $email = $request->getQueryParam('email');
         if (!empty($email)){
+
             // register email in the app
             $guid = $this->getGUID(false); // create GUID
             $errmsg = $this->sendMail($email, $guid); // send email with GUID
@@ -36,12 +38,61 @@ class Register
             // register log message
             $this->container->logger->info("registered ".$email.' with key '.$guid);
 
+            // persist user info
+            $this->registerUser($email, $guid);
+
             // thank user
             return $this->container->renderer->render($response, 'thanks.phtml', $args);
         }
 
         // Render register view
         return $this->container->renderer->render($response, 'register.phtml', $args);
+    }
+
+    /**
+     * Register the user in the MySQL database.
+     * @param string $username
+     * @param string $userkey
+     */
+    private function registerUser($username, $userkey)
+    {
+        try{
+            $datestring = date('Y-m-d H:i:s');
+            $quote = '"';
+            $pdo = $this->container->get('pdo');
+            $stmt = $pdo->query(
+                "SELECT * FROM termsofuse ".
+                "WHERE username = ".$quote.$username.$quote.';'
+            );
+            $rows = $stmt->fetch();
+
+            if ($rows===false){
+                // the user is not yet registered in the database
+                $sql = "INSERT INTO termsofuse ".
+                    "(username, userkey, registerdate) ".
+                    "VALUES(".$quote.$username.$quote.",".
+                    $quote.$userkey.$quote.",".$quote.$datestring.$quote.");"
+                ;
+                $rows = $pdo->exec($sql);
+            }
+            else {
+                // the user is already registered in the database
+                $sql = "UPDATE termsofuse SET".
+                    " userkey = ".$quote.$userkey.$quote.','.
+                    " registerdate = ".$quote.$datestring.$quote.
+                    " WHERE username = ".$quote.$username.$quote
+                ;
+                $rows = $pdo->exec($sql);
+            }
+            $this->container->logger->info(
+                "persisted ".$username.' with key '.$userkey
+            );
+        }
+        catch (\Exception $e){
+            $this->container->logger->error(
+                "persisted: ".$e
+            );
+        }
     }
 
     /**

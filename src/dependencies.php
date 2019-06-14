@@ -17,3 +17,18 @@ $container['logger'] = function ($c) {
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
     return $logger;
 };
+
+// custom dependancy injection for pdo
+$container['pdo'] = function ($c) {
+    $custom = $c->get('settings')['custom'];
+    $dbname = $custom['mysqlDbName'];
+    $username = $custom['mysqlDbUserName'];
+    $password = $custom['mysqlDbUserPassword'];
+    $dsn = "mysql:host=localhost;dbname=$dbname;charset=utf8";
+    $options = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ];
+    $pdo = new PDO($dsn, $username, $password, $options);
+    return $pdo;
+};
