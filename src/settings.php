@@ -21,8 +21,8 @@ return [
         // get values with slim php $custom = $this->container->settings['custom'];
         // or like $custom = $this->container->settings['custom']['mysqlDbName'];
         'custom' => [
-            'mailUsername' => 'secretMailUserName',
-            'mailPassword' => 'secretMailUserPassword',
+            'mailUser' => 'secretMailUser',
+            'mailPassword' => 'secretMailPassword',
             'mysqlDbName' => 'secretDbName',
             'mysqlDbRootPassword' => 'secretRootPassword',
             'mysqlDbUserName' => 'secretDbUserName',

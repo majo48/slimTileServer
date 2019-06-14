@@ -104,6 +104,49 @@
 - name: restart apache service
   command: "systemctl restart apache2"
 
+# Install application settings and credentials
+#
+- name: set settings filename
+  set_fact:
+    settings_file: "{{remote_dir}}/src/settings.php"
+- debug: msg="{{settings_file}}"
+
+- name: set mail user name
+  lineinfile:
+    dest: "{{settings_file}}"
+    regexp: ^.*?mailUser
+    line: "            'mailUser' => '{{mail_user_name}}',"
+
+- name: set mail user password
+  lineinfile:
+    dest: "{{settings_file}}"
+    regexp: ^.*?mailPassword
+    line: "            'mailPassword' => '{{mail_user_password}}',"
+
+- name: set mysql database name
+  lineinfile:
+    dest: "{{settings_file}}"
+    regexp: ^.*?mysqlDbName
+    line: "            'mysqlDbName' => '{{mysql_db_name}}',"
+
+- name: set mysql root password
+  lineinfile:
+    dest: "{{settings_file}}"
+    regexp: ^.*?mysqlDbRootPassword
+    line: "            'mysqlDbRootPassword' => '{{mysql_root_password}}',"
+
+- name: set mysql user name
+  lineinfile:
+    dest: "{{settings_file}}"
+    regexp: ^.*?mysqlDbUserName
+    line: "            'mysqlDbUserName' => '{{mysql_user_name}}',"
+
+- name: set mysql user password
+  lineinfile:
+    dest: "{{settings_file}}"
+    regexp: ^.*?mysqlDbUserPassword
+    line: "            'mysqlDbUserPassword' => '{{mysql_user_password}}',"
+
 # Install backup script and credentials
 #
 - name: make backup folder
@@ -123,7 +166,7 @@
 - name: set backup script filename
   set_fact:
     backup_script: "{{remote_dir}}/runUbuntuMysqlBackup.sh"
-- debug: msg="{{virtual_host}}"
+- debug: msg="{{backup_script}}"
 
 - name: set mysql backup database
   lineinfile:
