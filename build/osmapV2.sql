@@ -16,34 +16,57 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `termsofuse`
+-- Table structure for table `register`
 --
 
-DROP TABLE IF EXISTS `termsofuse`;
+DROP TABLE IF EXISTS `register`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `termsofuse` (
+CREATE TABLE `register` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(100) DEFAULT '',
   `userkey` varchar(100) DEFAULT '',
-  `lastminute` int(11) unsigned DEFAULT NULL,
-  `countminute` int(11) unsigned DEFAULT NULL,
-  `countday` int(11) unsigned DEFAULT NULL,
   `registerdate` datetime(6) NOT NULL,
   `memo` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `registered` (`userkey`) KEY_BLOCK_SIZE=100
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `termsofuse`
+-- Dumping data for table `register`
 --
 
-LOCK TABLES `termsofuse` WRITE;
-/*!40000 ALTER TABLE `termsofuse` DISABLE KEYS */;
-INSERT INTO `termsofuse` VALUES (1,'DEFAULT','da98c7a446274dbe82b8f13667848952',NULL,NULL,NULL,'2019-05-31 00:00:00.000000',NULL);
-/*!40000 ALTER TABLE `termsofuse` ENABLE KEYS */;
+LOCK TABLES `register` WRITE;
+/*!40000 ALTER TABLE `register` DISABLE KEYS */;
+INSERT INTO `register` VALUES (1,'DEFAULT','da98c7a446274dbe82b8f13667848952','2019-05-31 00:00:00.000000',NULL),(2,'jonasse@datazug.ch','5EF6FCD6-E60D-F843-F6AE-4B5125D30A93','2019-06-14 18:10:47.000000',NULL);
+/*!40000 ALTER TABLE `register` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `usage`
+--
+
+DROP TABLE IF EXISTS `usage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `usage` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `userkey` varchar(100) NOT NULL DEFAULT '',
+  `microtime` varchar(100) DEFAULT '',
+  `countday` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `registered` (`userkey`) KEY_BLOCK_SIZE=100
+) ENGINE=MEMORY DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `usage`
+--
+
+LOCK TABLES `usage` WRITE;
+/*!40000 ALTER TABLE `usage` DISABLE KEYS */;
+/*!40000 ALTER TABLE `usage` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -55,4 +78,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-01 10:31:38
+-- Dump completed on 2019-06-15  7:48:00

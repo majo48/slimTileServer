@@ -184,6 +184,6 @@
   lineinfile:
     dest: "{{backup_script}}"
     regexp: ^.*?MYPASSWORD=
-    line: "MYDATABASE={{mysql_user_password}}"
+    line: "MYPASSWORD={{mysql_user_password}}"
 
 # finished
