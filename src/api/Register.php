@@ -186,14 +186,14 @@ class Register
             $quote = '"';
             $pdo = $this->container->get('pdo');
             $stmt = $pdo->query(
-                "SELECT * FROM termsofuse ".
+                "SELECT * FROM `register` ".
                 "WHERE username = ".$quote.$username.$quote.';'
             );
             $rows = $stmt->fetch();
 
             if ($rows===false){
                 // the user is not yet registered in the database
-                $sql = "INSERT INTO termsofuse ".
+                $sql = "INSERT INTO `register` ".
                     "(username, userkey, registerdate) ".
                     "VALUES(".$quote.$username.$quote.",".
                     $quote.$userkey.$quote.",".$quote.$datestring.$quote.");"
@@ -202,7 +202,7 @@ class Register
             }
             else {
                 // the user is already registered in the database
-                $sql = "UPDATE termsofuse SET".
+                $sql = "UPDATE `register` SET".
                     " userkey = ".$quote.$userkey.$quote.','.
                     " registerdate = ".$quote.$datestring.$quote.
                     " WHERE username = ".$quote.$username.$quote

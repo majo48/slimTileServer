@@ -28,6 +28,7 @@ $container['pdo'] = function ($c) {
     $options = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
     ];
     $pdo = new PDO($dsn, $username, $password, $options);
     return $pdo;
