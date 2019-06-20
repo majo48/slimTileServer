@@ -33,13 +33,13 @@ class Register
 
             // register email in the app
             $guid = $this->getGUID(false); // create GUID
-            $errmsg = $this->sendMail($email, $guid); // send email with GUID
+            $this->sendMail($email, $guid); // send email with GUID
 
             // register log message
             $this->container->logger->info("registered ".$email.' with key '.$guid);
 
             // persist user info
-            $this->registerUser($email, $guid);
+            $this->container->mysql->registerUser($email, $guid);
 
             // thank user
             return $this->container->renderer->render($response, 'thanks.phtml', $args);
@@ -171,53 +171,11 @@ class Register
         catch (\Exception $e){
             $errmsg = $e->getMessage();
         }
+        if (null!==$errmsg){
+            $this->container->logger->error(
+                "Mailto: ".$username.' with error: '.$e
+            );
+        }
         return $errmsg;
     }
-
-    /**
-     * Register the user in the MySQL database.
-     * @param string $username
-     * @param string $userkey
-     */
-    private function registerUser($username, $userkey)
-    {
-        try{
-            $datestring = date('Y-m-d H:i:s');
-            $quote = '"';
-            $pdo = $this->container->get('pdoMysql');
-            $stmt = $pdo->query(
-                "SELECT * FROM `register` ".
-                "WHERE username = ".$quote.$username.$quote.';'
-            );
-            $rows = $stmt->fetch();
-
-            if ($rows===false){
-                // the user is not yet registered in the database
-                $sql = "INSERT INTO `register` ".
-                    "(username, userkey, registerdate) ".
-                    "VALUES(".$quote.$username.$quote.",".
-                    $quote.$userkey.$quote.",".$quote.$datestring.$quote.");"
-                ;
-                $rows = $pdo->exec($sql);
-            }
-            else {
-                // the user is already registered in the database
-                $sql = "UPDATE `register` SET".
-                    " userkey = ".$quote.$userkey.$quote.','.
-                    " registerdate = ".$quote.$datestring.$quote.
-                    " WHERE username = ".$quote.$username.$quote
-                ;
-                $rows = $pdo->exec($sql);
-            }
-            $this->container->logger->info(
-                "persisted ".$username.' with key: '.$userkey
-            );
-        }
-        catch (\Exception $e){
-            $this->container->logger->error(
-                "persisted: ".$username.' with error: '.$e
-            );
-        }
-    }
-
 }

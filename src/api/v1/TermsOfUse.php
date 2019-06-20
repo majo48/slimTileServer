@@ -26,7 +26,7 @@ trait TermsOfUse
             'status_text' => "OK"
         );
         $msecs = strval(round(microtime(true), 3));
-        $usage = $this->getUsage($key, $msecs);
+        $usage = $this->container->mysql->getUsage($key, $msecs);
         if ($usage===array()){
             // invalid key
             $response = array(
@@ -43,68 +43,4 @@ trait TermsOfUse
         }
         return $response;
     }
-
-    /**
-     * Get/set the current usage info in the mysql database
-     * @param $key
-     * @return array
-     */
-    private function getUsage($key, $msecs)
-    {
-        try{
-            $pdo = $this->container->get('pdoMysql');
-            $quote = '"';
-            $stmt = $pdo->prepare(
-                "SELECT * FROM `usage` WHERE userkey = ".$quote.$key.$quote
-            );
-            $stmt->execute();
-            $usage = $stmt->fetch(); // get first row
-            if (false===$usage){
-                $stmt->closeCursor();
-                // usage $key not found
-                $stmt2 = $pdo->prepare(
-                    "SELECT * FROM `register` WHERE userkey = ".$quote.$key.$quote
-                );
-                $stmt2->execute();
-                $usage = $stmt2->fetch(); // get first row
-                if (false===$usage){
-                    // $key not registered
-                    return array();
-                }
-                $stmt2->closeCursor();
-                $stmt = $pdo->prepare(
-                    "INSERT INTO `usage` (userkey, microtime, countday) ".
-                    "VALUES(".$quote.$key.$quote.",".$quote.$msecs.$quote.",1);"
-                );
-                $stmt->execute();
-                $usage = array(
-                    'userkey' => $key,
-                    'microtime' => $msecs,
-                    'countday' => 1
-                );
-            }
-            else {
-                // check for sameday
-                $newDate = date("Y-m-d", $msecs);
-                $oldDate = date("Y-m-d", $usage['microtime']);
-                $counter = ($newDate===$oldDate)? $usage['countday']+1 : 1;
-                // persist timestamp and counter
-                $stmt = $pdo->prepare( "UPDATE `usage` SET".
-                    " microtime = ".$quote.$msecs.$quote.','.
-                    " countday = ".$counter.
-                    " WHERE userkey = ".$quote.$key.$quote
-                );
-                $stmt->execute();
-                $usage['countday'] = $counter;
-            }
-            return $usage;
-        }
-        catch (\Exception $e){
-            $this->container->logger->error(
-                'MySQL database record for '.$key.', message: '.$e->getMessage()
-            );
-            return array();
-        }
-    }
-
 }

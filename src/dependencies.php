@@ -18,18 +18,8 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
-// custom dependancy injection for pdo
-$container['pdoMysql'] = function ($c) {
-    $custom = $c->get('settings')['custom'];
-    $dbname = $custom['mysqlDbName'];
-    $username = $custom['mysqlDbUserName'];
-    $password = $custom['mysqlDbUserPassword'];
-    $dsn = "mysql:host=localhost;dbname=$dbname;charset=utf8";
-    $options = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-    ];
-    $pdo = new PDO($dsn, $username, $password, $options);
-    return $pdo;
+// custom dependancy injection for mysql
+$container['mysql'] = function ($c) {
+    $mysql = new App\api\v1\MySQL($c);
+    return $mysql;
 };
