@@ -14,7 +14,7 @@ trait TermsOfUse
      * Check terms of use:
      * 1. valid key
      * 2. max. one request per second
-     * 3. max. 10'000 requests per day (todo)
+     * 3. max. 10'000 requests per day
      *
      * @param string $key
      * @return array with status code and text
@@ -45,14 +45,14 @@ trait TermsOfUse
     }
 
     /**
-     * Get the current usage info from the database
+     * Get/set the current usage info in the mysql database
      * @param $key
      * @return array
      */
     private function getUsage($key, $msecs)
     {
         try{
-            $pdo = $this->container->get('pdo');
+            $pdo = $this->container->get('pdoMysql');
             $quote = '"';
             $stmt = $pdo->prepare(
                 "SELECT * FROM `usage` WHERE userkey = ".$quote.$key.$quote
@@ -100,6 +100,9 @@ trait TermsOfUse
             return $usage;
         }
         catch (\Exception $e){
+            $this->container->logger->error(
+                'MySQL database record for '.$key.', message: '.$e->getMessage()
+            );
             return array();
         }
     }

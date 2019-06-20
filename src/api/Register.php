@@ -184,7 +184,7 @@ class Register
         try{
             $datestring = date('Y-m-d H:i:s');
             $quote = '"';
-            $pdo = $this->container->get('pdo');
+            $pdo = $this->container->get('pdoMysql');
             $stmt = $pdo->query(
                 "SELECT * FROM `register` ".
                 "WHERE username = ".$quote.$username.$quote.';'

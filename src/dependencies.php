@@ -19,7 +19,7 @@ $container['logger'] = function ($c) {
 };
 
 // custom dependancy injection for pdo
-$container['pdo'] = function ($c) {
+$container['pdoMysql'] = function ($c) {
     $custom = $c->get('settings')['custom'];
     $dbname = $custom['mysqlDbName'];
     $username = $custom['mysqlDbUserName'];
