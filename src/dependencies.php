@@ -23,3 +23,9 @@ $container['mysql'] = function ($c) {
     $mysql = new App\api\v1\MySQL($c);
     return $mysql;
 };
+
+// custom dependancy injection for mymail
+$container['mymail'] = function ($c) {
+    $mail = new App\api\v1\MyMail($c);
+    return $mail;
+};
