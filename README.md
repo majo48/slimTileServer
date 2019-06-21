@@ -1,8 +1,6 @@
 # SlimTileServer
 
-Welcome to the slimTileServer GitHub repository! 
-
-This is an open source project, starting November 2018:
+Welcome to the slimTileServer GitHub repository! This is an open source project, starting November 2018:
 
 **Scope**:
 
@@ -23,8 +21,10 @@ Server software with:
 Deployed with Ansible.
 
 **Out of Scope**:
+
+Discontinued the creation of a tileserver; the available code is not very flexible (e.g. changing map style) and/or unprofessional (DIY). Also, most of the installation guides are legacy/out-of-date. IMHO really not worth all the trouble.
+
 * Tile servers:
   * mapnik: not flexible enough, ~~outdated, DIY stuff~~ (haven't tried https://www.linuxbabe.com/ubuntu/openstreetmap-tile-server-ubuntu-18-04-osm yet)
   * mapserver: ambiguous and outdated docs, also DIY
-  * IMHO really not worth all the trouble
 * use Google Maps, Bing, Maptiler instead
