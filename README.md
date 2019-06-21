@@ -24,7 +24,7 @@ Deployed with Ansible.
 
 **Out of Scope**:
 * Tile servers:
-  * mapnik: not flexible enough, outdated, DIY stuff
+  * mapnik: not flexible enough, ~~outdated, DIY stuff~~ (haven't tried https://www.linuxbabe.com/ubuntu/openstreetmap-tile-server-ubuntu-18-04-osm yet)
   * mapserver: ambiguous and outdated docs, also DIY
   * IMHO really not worth all the trouble
 * use Google Maps, Bing, Maptiler instead
