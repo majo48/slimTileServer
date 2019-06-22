@@ -7,7 +7,7 @@
 # mysql  Ver 14.14 Distrib 5.7.26, for Linux (x86_64)
 # PHP 7.2.17-0ubuntu0.18.04.1 (cli)
 # Xdebug v2.6.0 copyright Derrick Rethans
-# psql (PostgreSQL) 10.8
+# psql (PostgreSQL) 10.9
 #
 - name: install lamp stack
   apt:
@@ -19,6 +19,9 @@
       - php-xdebug
       - postgresql
       - postgresql-contrib
+      - postgis
+      - postgresql-10-postgis-2.4
+      - postgresql-10-postgis-2.4-scripts
     state: present
     update_cache: yes
 
