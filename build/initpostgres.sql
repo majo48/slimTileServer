@@ -20,16 +20,26 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL  ON FUNCTIONS TO gisgroup;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL  ON TYPES TO gisgroup;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL  ON SCHEMAS TO gisgroup;
 
+-- create postgis extensions
+CREATE EXTENSION postgis;
+CREATE EXTENSION hstore;
+
 -- create objects
 DROP TABLE IF EXISTS gwr;
 CREATE TABLE gwr (
-    address_id INTEGER,
-    address_line_1 VARCHAR(50) NOT NULL,
-    address_line_2 VARCHAR(50),
+    id SERIAL PRIMARY KEY,
+    street VARCHAR(50) NOT NULL,
+    number VARCHAR(50) NOT NULL,
+    unit VARCHAR(16),
     city VARCHAR(50) NOT NULL,
-    state VARCHAR(2) NOT NULL,
-    zipcode VARCHAR(12) NOT NULL,
-    PRIMARY KEY (address_id)
+    district VARCHAR(50),
+    region VARCHAR(16) NOT NULL,
+    postcode VARCHAR(16) NOT NULL,
+    gwrId VARCHAR(16),
+    hash VARCHAR(32) NOT NULL,
+    lat VARCHAR(16),
+    lon VARCHAR(16),
+    geom geometry(POINT)
 );
 
 -- Create more objects....
@@ -40,11 +50,6 @@ CREATE ROLE mart WITH INHERIT ENCRYPTED PASSWORD 'abc123' IN ROLE gisgroup;
 ALTER ROLE mart WITH LOGIN;
 
 ALTER TABLE gwr OWNER TO mart;
-
--- create postgis extensions
-CREATE EXTENSION postgis;
-CREATE EXTENSION hstore;
 ALTER TABLE geometry_columns OWNER TO mart;
 ALTER TABLE spatial_ref_sys OWNER TO mart;
 
-exit
