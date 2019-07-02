@@ -27,6 +27,9 @@ return [
             'mysqlDbRootPassword' => 'secretRootPassword',
             'mysqlDbUserName' => 'secretDbUserName',
             'mysqlDbUserPassword' => 'secretDbUserPassword',
+            'postgresDbName' => 'secretDbName',
+            'postgresDbUserName' => 'secretDbUserName',
+            'postgresDbUserPassword' => 'secretDbUserPassword',
         ],
     ],
 ];

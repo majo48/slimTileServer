@@ -147,6 +147,24 @@
     regexp: ^.*?mysqlDbUserPassword
     line: "            'mysqlDbUserPassword' => '{{mysql_user_password}}',"
 
+- name: set postgres database name
+  lineinfile:
+    dest: "{{settings_file}}"
+    regexp: ^.*?postgresDbName
+    line: "            'postgresDbName' => '{{pg_db_name}}',"
+
+- name: set postgres user name
+  lineinfile:
+    dest: "{{settings_file}}"
+    regexp: ^.*?postgresDbUserName
+    line: "            'postgresDbUserName' => '{{pg_db_user_name}}',"
+
+- name: set postgres user password
+  lineinfile:
+    dest: "{{settings_file}}"
+    regexp: ^.*?postgresDbUserPassword
+    line: "            'postgresDbUserPassword' => '{{pg_db_user_password}}',"
+
 # Install backup script and credentials
 #
 - name: make backup folder

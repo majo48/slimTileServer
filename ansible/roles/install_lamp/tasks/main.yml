@@ -22,6 +22,7 @@
       - postgis
       - postgresql-10-postgis-2.4
       - postgresql-10-postgis-2.4-scripts
+      - php7.2-pgsql
     state: present
     update_cache: yes
 
@@ -36,6 +37,18 @@
     name: mysql
     state: started
     enabled: yes
+
+- name: enable the php pdo_pgsql driver
+  lineinfile:
+    dest: /etc/php/7.2/apache2/php.ini
+    regexp: ^.*?;extension=pdo_pgsql
+    line: "extension=pdo_pgsql"
+
+- name: enable the php pdo_pgsql driver
+  lineinfile:
+    dest: /etc/php/7.2/apache2/php.ini
+    regexp: ^.*?;extension=pgsql
+    line: "extension=pgsql"
 
 # finished
 

@@ -12,6 +12,10 @@ use GeoIp2\Database\Reader;
 
 class GeoLocation
 {
+    use MyProjectDir{
+        getProjectDir as protected;
+    }
+
     public $country;
     public $countryCode;
     public $state;
@@ -49,17 +53,5 @@ class GeoLocation
         catch (\Exception $e){
             $this->errormsg = $e->getMessage();
         }
-    }
-
-    /**
-     * Get the path of the project directory, e.g. '/srv/slim'
-     * @return string
-     */
-    private function getProjectDir()
-    {
-        $dir = __DIR__;
-        $dar = explode('/', $dir);
-        $root = '/'.$dar[1].'/'.$dar[2];
-        return $root;
     }
 }

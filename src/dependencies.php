@@ -24,8 +24,15 @@ $container['mysql'] = function ($c) {
     return $mysql;
 };
 
-// custom dependancy injection for mymail
+// custom dependancy injection for postgres
+$container['mypostgres'] = function ($c) {
+    $mysql = new App\api\v1\MyPostgres($c);
+    return $mysql;
+};
+
+// custom dependancy injection for mail
 $container['mymail'] = function ($c) {
     $mail = new App\api\v1\MyMail($c);
     return $mail;
 };
+
