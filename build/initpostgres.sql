@@ -35,6 +35,7 @@ CREATE TABLE gwr (
     district VARCHAR(50),
     region VARCHAR(16) NOT NULL,
     postcode VARCHAR(16) NOT NULL,
+    countrycode VARCHAR(8) NOT NULL,
     gwrId VARCHAR(16),
     hash VARCHAR(32) NOT NULL,
     lat VARCHAR(16),

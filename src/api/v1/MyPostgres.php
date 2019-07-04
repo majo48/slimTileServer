@@ -10,11 +10,12 @@ class MyPostgres
     use MyProjectDir{
         getProjectDir as protected;
     }
-    // both files have an identical structure
-    const CSVFILECH= 'data/countrywide/ch/countrywide.csv';
 
     /** @var Container $container */
-    protected   $container;
+    protected $container;
+
+    /** @var array $countries */
+    protected $countries;
 
     /** @var PDO $pdoPostgres */
     protected $pdoPostgres;
@@ -26,6 +27,11 @@ class MyPostgres
     public function __construct($container)
     {
         $this->container = $container;
+
+        $this->countries = array(
+            'CH' => 'data/countrywide/ch/countrywide.csv',
+            'LI' => 'data/countrywide/li/countrywide.csv'
+        );
 
         $custom = $container->get('settings')['custom'];
         $dbname = $custom['postgresDbName'];
@@ -41,7 +47,6 @@ class MyPostgres
      */
     public function downloadCsv($country)
     {
-        $csv = $this->getProjectDir().'/'.self::CSVFILECH;
         //todo finish this
         return null;
     }
@@ -50,32 +55,34 @@ class MyPostgres
      * @param string $country
      * @return null|string
      */
-    public function updateDb($country)
+    public function updateDb($countrycode)
     {
-        // open csv file
-        $csv = $this->getProjectDir().'/'.self::CSVFILECH;
-        $fn = fopen($csv, 'r');
-        if ($fn===false){
-            return 'Cannot open file '.$csv;
-        }
-
-        // read csv header
-        $header = explode(',', rtrim(fgets($fn),"\r\n"));
-        if (($fn===false)||($this->checkHeader($header)===false)){
-            return 'No/wrong header in file '.$csv;
-        }
-        $this->clearDb();
-
-        // read csv data
         $cntr = 0;
-        while(!feof($fn)) {
-            $data = explode(',', rtrim(fgets($fn),"\r\n"));
-            $this->addRow($header, $data);
-            $cntr++;
+        foreach ($this->countries as $country => $pathfile){
+            if (($countrycode==='*')||
+                ($countrycode===$country)){
+                // open csv file
+                $csv = $this->getProjectDir().'/'.$pathfile;
+                $fn = fopen($csv, 'r');
+                if ($fn===false){
+                    return 'Cannot open file '.$csv;
+                }
+                // read csv header
+                $header = explode(',', rtrim(fgets($fn),"\r\n"));
+                if (($fn===false)||($this->checkHeader($header)===false)){
+                    return 'No/wrong header in file '.$csv;
+                }
+                $this->clearDb($country);
+                // read csv data
+                while(!feof($fn)) {
+                    $data = explode(',', rtrim(fgets($fn),"\r\n"));
+                    $this->addRow($header, $data, $country);
+                    $cntr++;
+                }
+                fclose($fn);
+                $this->updateGwr($country);
+            }
         }
-        fclose($fn);
-        $this->updateGwr();
-
         if ($cntr===0){
             return 'No data in file '.$csv;
         }
@@ -110,10 +117,13 @@ class MyPostgres
      * Clear all rows in postgres database gis, table gwr
      * @return integer number of rows deleted
      */
-    private function clearDb()
+    private function clearDb($countrycode)
     {
         try{
-            $stmt = $this->pdoPostgres->prepare('DELETE FROM gwr');
+            $quote = '"';
+            $stmt = $this->pdoPostgres->prepare(
+                'DELETE FROM gwr WHERE countrycode ='.$quote.$countrycode.$quote
+            );
             $stmt->execute();
             return $stmt->rowCount();
         }
@@ -127,17 +137,19 @@ class MyPostgres
 
     /**
      * Add one row to postgres database gis, table gwr
+     * NOTE: the id field ($data[9]) for Liechtenstein is empty
+     *
      * @param array $header
      * @param array $data
      * @return integer the id of the new record
      */
-    private function addRow($header, $data)
+    private function addRow($header, $data, $countrycode)
     {
         try{
             // prepare statement for insert
             $sql = 'INSERT INTO '.
-                'gwr(street,number,city,region,postcode,gwrId,hash,lat,lon) '.
-                'VALUES(:street,:number,:city,:region,:postcode,:gwrId,:hash,:lat,:lon)';
+                'gwr(street,number,city,region,postcode,countrycode,gwrId,hash,lat,lon) '.
+                'VALUES(:street,:number,:city,:region,:postcode,:countrycode,:gwrId,:hash,:lat,:lon)';
             $stmt = $this->pdoPostgres->prepare($sql);
 
             // pass values to the statement
@@ -146,6 +158,7 @@ class MyPostgres
             $stmt->bindValue(':city', $data[5]);
             $stmt->bindValue(':region', $data[7]);
             $stmt->bindValue(':postcode', $data[8]);
+            $stmt->bindValue(':countrycode', $countrycode);
             $stmt->bindValue(':gwrId', $data[9]);
             $stmt->bindValue(':hash', $data[10]);
             $stmt->bindValue(':lat', $data[1]);
@@ -169,12 +182,15 @@ class MyPostgres
      * Update all geometry fields in the postgres database
      * @return integer number of rows updated
      */
-    private function updateGwr()
+    private function updateGwr($countrycode)
     {
         try{
             // prepare statement for update
-            $sql = "UPDATE gwr SET geom = ST_SetSRID(".
-                "ST_MakePoint(cast(LON AS float), cast(LAT AS float)), 4326);";
+            $quote = '"';
+            $sql =
+                "UPDATE gwr SET geom = ST_SetSRID(".
+                "ST_MakePoint(cast(LON AS float), cast(LAT AS float)), 4326) ".
+                "WHERE countrycode = ".$quote.$countrycode.$quote;
             $stmt = $this->pdoPostgres->prepare($sql);
             // execute the update statement
             $stmt->execute();
