@@ -16,7 +16,9 @@
       - mysql-server
       - php7.2
       - php7.2-mysql
+      - php7.2-zip
       - php-xdebug
+      - php-dom
       - postgresql
       - postgresql-contrib
       - postgis

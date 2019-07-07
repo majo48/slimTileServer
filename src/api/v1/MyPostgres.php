@@ -4,6 +4,8 @@
 namespace App\api\v1;
 
 use PDO;
+use DOMDocument;
+use ZipArchive;
 
 class MyPostgres
 {
@@ -29,8 +31,16 @@ class MyPostgres
         $this->container = $container;
 
         $this->countries = array(
-            'CH' => 'data/countrywide/ch/countrywide.csv',
-            'LI' => 'data/countrywide/li/countrywide.csv'
+            'CH' => array(
+                'link' => 'https://results.openaddresses.io/sources/ch/countrywide',
+                'zipfile' => 'data/countrywide/countrywide.ch.csv',
+                'pathfile' => 'data/countrywide/ch/countrywide.csv'
+            ),
+            'LI' => array(
+                'link' => 'https://results.openaddresses.io/sources/li/countrywide',
+                'zipfile' => 'data/countrywide/countrywide.li.csv',
+                'pathfile' => 'data/countrywide/li/countrywide.csv'
+            ),
         );
 
         $custom = $container->get('settings')['custom'];
@@ -43,26 +53,139 @@ class MyPostgres
 
     /** -----
      * @param string $country
-     * @return null|string
+     * @return null|string null=OK, string=error message
      */
-    public function downloadCsv($country)
+    public function downloadCountries($countrycode)
     {
-        //todo finish this
-        return null;
+        try{
+            foreach ($this->countries as $country => $countryArray){
+                if (($countrycode==='*')||
+                    ($countrycode===$country)){
+                    $link = $this->getDownloadLink($country);
+                    if (null===$link){
+                        return 'Download link not found for country '.$country;
+                    }
+                    if ($this->hasDownloadLinkFor($country, $link)){
+                        continue; // skip, download already in database
+                    }
+                    $destination = $this->getProjectDir().'/'.
+                        $this->countries[$country]['zipfile'];
+                    unlink($destination);
+                    file_put_contents($destination, file_get_contents($link));
+                    // unzip file
+                    $zip = new ZipArchive();
+                    $res = $zip->open($destination);
+                    if ($res===true){
+                        $path = pathinfo($destination, PATHINFO_DIRNAME);
+                        $zip->extractTo($path);
+                        $zip->close();
+                        $this->setDownloadLinkFor($country, $link);
+                        $this->updateGisGwr($country);
+                        continue; // next country
+                    }
+                    return 'Error opening Zip file '.$destination;
+                }
+            }
+            return null;
+        }
+        catch (\Exception $e){
+            return 'Download error: '.$e->getMessage();
+        }
     }
 
-    /** -----
-     * @param string $country
+    /**
+     * Compares with the last download link for a countrycode, e.g. CH
+     * The link contains a unique number for each new run version.
+     *
+     * @param string $countrycode
+     * @return boolean true when links are the same, false when not
+     */
+    private function hasDownloadLinkFor($countrycode, $hyperlink)
+    {
+        try{
+            $quote = "'";
+            $stmt = $this->pdoPostgres->prepare(
+                "SELECT * FROM downloads WHERE countrycode = ".
+                $quote.$countrycode.$quote.";"
+            );
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return ($hyperlink===$row['hyperlink']);
+        }
+        catch (Exception $e){
+            $this->container->logger->error(
+                "Downloads read error: ".$e->getMessage()
+            );
+            return false;
+        }
+    }
+
+    /**
+     * Set the last download link for a countrycode, e.g. CH
+     * The link contains a unique number for each new run version.
+     *
+     * @param string $countrycode
+     * @return integer|null 1 for success, 0 for error
+     */
+    private function setDownloadLinkFor($countrycode, $hyperlink)
+    {
+        try{
+            $quote = "'";
+            $sql =
+                "UPDATE downloads SET hyperlink = ".$quote.$hyperlink.$quote.
+                " WHERE countrycode = ".$quote.$countrycode.$quote.';';
+            $stmt = $this->pdoPostgres->prepare( $sql );
+            $stmt->execute();
+            return $stmt->rowCount();
+        }
+        catch (Exception $e){
+            $this->container->logger->error(
+                "Downloads update error: ".$e->getMessage()
+            );
+            return 0;
+        }
+    }
+
+
+    /**
+     * Get latest download link from addresses.io resource page
+     * @param $countrycode
+     * @return string|null
+     */
+    private function getDownloadLink($countrycode)
+    {
+        try{
+            $link = $this->countries[$countrycode]['link'];
+            $html = file_get_contents($link);
+            $doc = new DOMDocument();
+            $doc->loadHTML($html); // openaddresses resource page
+            $table = $doc->getElementById('source');
+            $trs = $table->getElementsByTagName('tr');
+            $tr = $trs->item(1); // second row
+            $tds = $tr->getElementsByTagName('td'); // get columns in this row
+            $td = $tds->item(3); // third td
+            $anchors = $td->getElementsByTagName('a'); //
+            $anchor = $anchors->item(0); // first anchor
+            return $anchor->getAttribute('href');
+        }
+        catch (\Exception $e){
+            return null;
+        }
+    }
+
+    /**
+     * Download from resource server and unzip the download
+     * @param string $country asterik(*) is for all countries
      * @return null|string
      */
-    public function updateDb($countrycode)
+    private function updateGisGwr($countrycode)
     {
         $cntr = 0;
-        foreach ($this->countries as $country => $pathfile){
+        foreach ($this->countries as $country => $countryArray){
             if (($countrycode==='*')||
                 ($countrycode===$country)){
                 // open csv file
-                $csv = $this->getProjectDir().'/'.$pathfile;
+                $csv = $this->getProjectDir().'/'.$countryArray['pathfile'];
                 $fn = fopen($csv, 'r');
                 if ($fn===false){
                     return 'Cannot open file '.$csv;
@@ -80,7 +203,7 @@ class MyPostgres
                     $cntr++;
                 }
                 fclose($fn);
-                $this->updateGwr($country);
+                $this->updateGwrGeom($country);
             }
         }
         if ($cntr===0){
@@ -120,9 +243,9 @@ class MyPostgres
     private function clearDb($countrycode)
     {
         try{
-            $quote = '"';
+            $quote = "'";
             $stmt = $this->pdoPostgres->prepare(
-                'DELETE FROM gwr WHERE countrycode ='.$quote.$countrycode.$quote
+                'DELETE FROM gwr WHERE countrycode ='.$quote.$countrycode.$quote.';'
             );
             $stmt->execute();
             return $stmt->rowCount();
@@ -149,7 +272,7 @@ class MyPostgres
             // prepare statement for insert
             $sql = 'INSERT INTO '.
                 'gwr(street,number,city,region,postcode,countrycode,gwrId,hash,lat,lon) '.
-                'VALUES(:street,:number,:city,:region,:postcode,:countrycode,:gwrId,:hash,:lat,:lon)';
+                'VALUES(:street,:number,:city,:region,:postcode,:countrycode,:gwrId,:hash,:lat,:lon);';
             $stmt = $this->pdoPostgres->prepare($sql);
 
             // pass values to the statement
@@ -182,15 +305,15 @@ class MyPostgres
      * Update all geometry fields in the postgres database
      * @return integer number of rows updated
      */
-    private function updateGwr($countrycode)
+    private function updateGwrGeom($countrycode)
     {
         try{
             // prepare statement for update
-            $quote = '"';
+            $quote = "'";
             $sql =
                 "UPDATE gwr SET geom = ST_SetSRID(".
                 "ST_MakePoint(cast(LON AS float), cast(LAT AS float)), 4326) ".
-                "WHERE countrycode = ".$quote.$countrycode.$quote;
+                "WHERE countrycode = ".$quote.$countrycode.$quote.';';
             $stmt = $this->pdoPostgres->prepare($sql);
             // execute the update statement
             $stmt->execute();

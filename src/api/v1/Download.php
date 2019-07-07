@@ -26,7 +26,7 @@ class Download
     public function index($request, $response, $args)
     {
         $ipAddress = $request->getAttribute('ip_address');
-        $country = $request->getQueryParam('country');
+        $country = strtoupper($request->getQueryParam('country'));
 
         // request log message
         $this->container->logger->info("/download request for ".$country);
@@ -34,14 +34,8 @@ class Download
         $message = null;
         /** @var MyPostgres $postgres */
         $postgres = $this->container->mypostgres;
-
         // download file to data/countrywide
-        $message = $postgres->downloadCsv($country);
-
-        // update postgress database
-        if (null===$message){
-            $message = $postgres->updateDb($country);
-        }
+        $message = $postgres->downloadCountries($country);
 
         // send proper message to user
         if (null===$message){

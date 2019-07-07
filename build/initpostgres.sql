@@ -43,6 +43,13 @@ CREATE TABLE gwr (
     geom geometry(POINT)
 );
 
+DROP TABLE IF EXISTS downloads;
+CREATE TABLE downloads (
+    id SERIAL PRIMARY KEY,
+    countrycode VARCHAR(8) UNIQUE NOT NULL,
+    hyperlink VARCHAR(120) NOT NULL
+);
+
 -- Create more objects....
 
 -- add user 
@@ -51,6 +58,7 @@ CREATE ROLE mart WITH INHERIT ENCRYPTED PASSWORD 'abc123' IN ROLE gisgroup;
 ALTER ROLE mart WITH LOGIN;
 
 ALTER TABLE gwr OWNER TO mart;
+ALTER TABLE downloads OWNER TO mart;
 ALTER TABLE geometry_columns OWNER TO mart;
 ALTER TABLE spatial_ref_sys OWNER TO mart;
 
