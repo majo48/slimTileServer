@@ -60,6 +60,8 @@ CREATE TABLE register (
     registerdatetime VARCHAR(20),
     memo TEXT
 );
+INSERT INTO register(username,userkey)
+VALUES('default','da98c7a446274dbe82b8f13667848952');
 
 DROP TABLE IF EXISTS downloads;
 CREATE TABLE downloads (

@@ -60,11 +60,42 @@ class MyPostgres
     public function registerUser($username, $userkey)
     {
         try{
+            $quote = "'";
+            $timestamp = date('Y-m-d H:i:s');
+            // check if persisted
+            $stmt = $this->pdoPostgres->prepare(
+                "SELECT * FROM register WHERE username = ".
+                $quote.$username.$quote.";"
+            );
+            $stmt->execute();
+            if ($stmt->rowCount()===0){
+                // insert row
+                $stmt = $this->pdoPostgres->prepare(
+                    'INSERT INTO '.
+                    'register(username,userkey,registerdatetime) '.
+                    'VALUES(:username,:userkey,:registerdatetime);'
+                );
+                $stmt->bindValue(':username', $username);
+                $stmt->bindValue(':userkey', $userkey);
+                $stmt->bindValue(':registerdatetime', $timestamp);
+                $stmt->execute();
+            }
+            else{
+                // update row
+                $stmt = $this->pdoPostgres->prepare(
+                    'UPDATE register SET '.
+                    'userkey = :userkey, registerdatetime = :registerdatetime '.
+                    'WHERE username ='.$quote.$username.$quote.';'
+                );
+                $stmt->bindValue(':userkey', $userkey);
+                $stmt->bindValue(':registerdatetime', $timestamp);
+                $stmt->execute();
+            }
             return true;
         }
         catch (\Exception $e){
             $this->container->logger->error(
-                "Persisted user ".$username." with error: ".$e->getMessage()
+                "Register user ".$username." with error: ".$e->getMessage()
             );
             return false;
         }
