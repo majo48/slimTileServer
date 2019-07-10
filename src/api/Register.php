@@ -38,7 +38,7 @@ class Register
             $this->container->mymail->sendMail($email, $guid);
 
             // persist user info
-            $this->container->mysql->registerUser($email, $guid);
+            $this->container->mypostgres->registerUser($email, $guid);
 
             // register log message
             $this->container->logger->info("registered ".$email.' with key '.$guid);

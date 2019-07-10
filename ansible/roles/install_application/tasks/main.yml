@@ -123,30 +123,6 @@
     regexp: ^.*?mailPassword
     line: "            'mailPassword' => '{{mail_user_password}}',"
 
-- name: set mysql database name
-  lineinfile:
-    dest: "{{settings_file}}"
-    regexp: ^.*?mysqlDbName
-    line: "            'mysqlDbName' => '{{mysql_db_name}}',"
-
-- name: set mysql root password
-  lineinfile:
-    dest: "{{settings_file}}"
-    regexp: ^.*?mysqlDbRootPassword
-    line: "            'mysqlDbRootPassword' => '{{mysql_root_password}}',"
-
-- name: set mysql user name
-  lineinfile:
-    dest: "{{settings_file}}"
-    regexp: ^.*?mysqlDbUserName
-    line: "            'mysqlDbUserName' => '{{mysql_user_name}}',"
-
-- name: set mysql user password
-  lineinfile:
-    dest: "{{settings_file}}"
-    regexp: ^.*?mysqlDbUserPassword
-    line: "            'mysqlDbUserPassword' => '{{mysql_user_password}}',"
-
 - name: set postgres database name
   lineinfile:
     dest: "{{settings_file}}"
@@ -164,44 +140,5 @@
     dest: "{{settings_file}}"
     regexp: ^.*?postgresDbUserPassword
     line: "            'postgresDbUserPassword' => '{{pg_db_user_password}}',"
-
-# Install backup script and credentials
-#
-- name: make backup folder
-  file:
-    path: "{{backup_folder}}"
-    state: directory
-
-- name: recursively change owner, group, mode of backup folder
-  file:
-    path: "{{backup_folder}}"
-    state: directory
-    recurse: yes
-    owner: www-data
-    group: www-data
-    mode: '2775'
-
-- name: set backup script filename
-  set_fact:
-    backup_script: "{{remote_dir}}/runUbuntuMysqlBackup.sh"
-- debug: msg="{{backup_script}}"
-
-- name: set mysql backup database
-  lineinfile:
-    dest: "{{backup_script}}"
-    regexp: ^.*?MYDATABASE=
-    line: "MYDATABASE={{mysql_db_name}}"
-
-- name: set mysql backup user name
-  lineinfile:
-    dest: "{{backup_script}}"
-    regexp: ^.*?MYUSER=
-    line: "MYUSER={{mysql_user_name}}"
-
-- name: set mysql backup user password
-  lineinfile:
-    dest: "{{backup_script}}"
-    regexp: ^.*?MYPASSWORD=
-    line: "MYPASSWORD={{mysql_user_password}}"
 
 # finished

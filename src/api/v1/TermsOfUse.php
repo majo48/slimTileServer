@@ -26,7 +26,7 @@ trait TermsOfUse
             'status_text' => "OK"
         );
         $msecs = strval(round(microtime(true), 3));
-        $usage = $this->container->mysql->getUsage($key, $msecs);
+        $usage = $this->container->myshmop->getUsage($key, $msecs);
         if ($usage===array()){
             // invalid key
             $response = array(

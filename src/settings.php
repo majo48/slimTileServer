@@ -19,14 +19,10 @@ return [
         // Custom settings
         // set values with ansible install(update)_playbook.yml
         // get values with slim php $custom = $this->container->settings['custom'];
-        // or like $custom = $this->container->settings['custom']['mysqlDbName'];
+        // or like $custom = $this->container->settings['custom']['mailUser'];
         'custom' => [
             'mailUser' => 'secretMailUser',
             'mailPassword' => 'secretMailPassword',
-            'mysqlDbName' => 'secretDbName',
-            'mysqlDbRootPassword' => 'secretRootPassword',
-            'mysqlDbUserName' => 'secretDbUserName',
-            'mysqlDbUserPassword' => 'secretDbUserPassword',
             'postgresDbName' => 'secretDbName',
             'postgresDbUserName' => 'secretDbUserName',
             'postgresDbUserPassword' => 'secretDbUserPassword',

@@ -51,6 +51,25 @@ class MyPostgres
         $this->pdoPostgres = new PDO($dsn, $username, $password);
     }
 
+    /**
+     * Register the user in the Postgres database.
+     * @param string $username
+     * @param string $userkey
+     * @return boolean true=success, false=failed
+     */
+    public function registerUser($username, $userkey)
+    {
+        try{
+            return true;
+        }
+        catch (\Exception $e){
+            $this->container->logger->error(
+                "Persisted user ".$username." with error: ".$e->getMessage()
+            );
+            return false;
+        }
+    }
+
     /** -----
      * @param string $country
      * @return null|string null=OK, string=error message

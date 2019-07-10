@@ -1,8 +1,17 @@
 -- script for creating a virgin database as 'postgres' user
 -- credit: https://dba.stackexchange.com/questions/221209
+--
 -- USER mart
 -- DATABASE gis
 -- TABLE gwr
+--
+-- --------------------------------------------
+-- RUN THIS SCRIPT FOR EACH NEW SERVER INSTANCE
+-- --------------------------------------------
+-- to run this script:
+-- 1.SSH to remote server
+-- 2.$ sudo -u postgres psql
+-- 3.# \i /srv/slim/build/initpostgres.sql
 --
 DROP ROLE IF EXISTS gisgroup;
 CREATE ROLE gisgroup NOLOGIN;
@@ -43,6 +52,15 @@ CREATE TABLE gwr (
     geom geometry(POINT)
 );
 
+DROP TABLE IF EXISTS register;
+CREATE TABLE register (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    userkey VARCHAR(100) UNIQUE NOT NULL,
+    registerdatetime VARCHAR(20),
+    memo TEXT
+);
+
 DROP TABLE IF EXISTS downloads;
 CREATE TABLE downloads (
     id SERIAL PRIMARY KEY,
@@ -58,6 +76,7 @@ CREATE ROLE mart WITH INHERIT ENCRYPTED PASSWORD 'abc123' IN ROLE gisgroup;
 ALTER ROLE mart WITH LOGIN;
 
 ALTER TABLE gwr OWNER TO mart;
+ALTER TABLE register OWNER TO mart;
 ALTER TABLE downloads OWNER TO mart;
 ALTER TABLE geometry_columns OWNER TO mart;
 ALTER TABLE spatial_ref_sys OWNER TO mart;

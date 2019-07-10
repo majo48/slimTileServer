@@ -18,16 +18,16 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
-// custom dependancy injection for mysql
-$container['mysql'] = function ($c) {
-    $mysql = new App\api\v1\MySQL($c);
-    return $mysql;
-};
-
 // custom dependancy injection for postgres
 $container['mypostgres'] = function ($c) {
-    $mysql = new App\api\v1\MyPostgres($c);
-    return $mysql;
+    $mypostgres = new App\api\v1\MyPostgres($c);
+    return $mypostgres;
+};
+
+//custom dependancy injection for shared memory
+$container['myshmop'] = function ($c) {
+    $shmop = new App\api\v1\MyShmop($c);
+    return $shmop;
 };
 
 // custom dependancy injection for mail
