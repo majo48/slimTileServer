@@ -7,12 +7,6 @@
   failed_when: cmd_result.rc != 0
 - debug: msg={{ cmd_result.stdout }}
 
-- name: enable the php shmop extension
-  lineinfile:
-    dest: /etc/php/7.2/apache2/php.ini
-    regexp: ^.*?;extension=shmop
-    line: "extension=shmop"
-
 # Include sensitive information (credentials) here
 #
 - name: bare include (encrypted) credentials

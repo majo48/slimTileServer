@@ -25,9 +25,9 @@ $container['mypostgres'] = function ($c) {
 };
 
 //custom dependancy injection for shared memory
-$container['myshmop'] = function ($c) {
-    $shmop = new App\api\v1\MyShmop($c);
-    return $shmop;
+$container['mycache'] = function ($c) {
+    $mycache = new App\api\v1\MyCache($c);
+    return $mycache;
 };
 
 // custom dependancy injection for mail
