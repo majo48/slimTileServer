@@ -51,7 +51,7 @@ class MyPostgres
         $this->pdoPostgres = new PDO($dsn, $username, $password);
     }
 
-    /**
+    /** -----
      * Register the user in the Postgres database.
      * @param string $username
      * @param string $userkey
@@ -219,6 +219,9 @@ class MyPostgres
             return $anchor->getAttribute('href');
         }
         catch (\Exception $e){
+            $this->container->logger->error(
+                "Get download link error: ".$e->getMessage()
+            );
             return null;
         }
     }
@@ -282,6 +285,9 @@ class MyPostgres
             return true;
         }
         catch (\Exception $e){
+            $this->container->logger->error(
+                "Header check error: ".$e->getMessage()
+            );
             return false;
         }
     }
@@ -374,6 +380,29 @@ class MyPostgres
                 "Database update error: ".$e->getMessage()
             );
             return 0;
+        }
+    }
+
+    /** -----
+     * Check if the key provided is valid.
+     * @param string $key
+     * @return bool true: valid, false: invalid
+     */
+    public function checkValidKey($key)
+    {
+        try{
+            $quote = "'";
+            $stmt = $this->pdoPostgres->prepare(
+                "SELECT * FROM register WHERE userkey = ".$quote.$key.$quote.";"
+            );
+            $stmt->execute();
+            return ($stmt->rowCount()!==0);
+        }
+        catch (\Exception $e){
+            $this->container->logger->error(
+                "Database read key error: ".$e->getMessage()
+            );
+            return false;
         }
     }
 
