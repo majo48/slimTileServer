@@ -15,16 +15,16 @@ class GeoLocation
     use MyProjectDir{
         getProjectDir as protected;
     }
-
-    public $country;
-    public $countryCode;
-    public $state;
-    public $stateCode;
-    public $city;
-    public $postalCode;
-    public $latitude;
-    public $longitude;
-    public $errormsg;
+                            // Example
+    public $country;        // Switzerland
+    public $countryCode;    // CH
+    public $state;          // Zug
+    public $stateCode;      // ZG
+    public $city;           // Cham
+    public $postalCode;     // 6330
+    public $latitude;       // 47.1821
+    public $longitude;      // 8.4636
+    public $errormsg;       // null
 
     /**
      * GeoLocation constructor for any IP address. If the IP address is a

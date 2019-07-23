@@ -41,7 +41,7 @@ class ReverseGeocode
         if ($response['status_code']===200){
             $response = array(
                 'status_code' => 501,
-                'status_text' => "Not implemented"
+                'status_text' => "Not implemented yet."
             );
         }
         echo json_encode($response);
