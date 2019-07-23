@@ -3,7 +3,7 @@
 --
 -- USER mart
 -- DATABASE gis
--- TABLE gwr
+-- TABLE gwr, register, downloads, cities
 --
 -- --------------------------------------------
 -- RUN THIS SCRIPT FOR EACH NEW SERVER INSTANCE
@@ -70,6 +70,26 @@ CREATE TABLE downloads (
     hyperlink VARCHAR(120) NOT NULL
 );
 
+DROP TABLE IF EXISTS cities;
+CREATE TABLE cities (
+    id SERIAL PRIMARY KEY,
+    city VARCHAR(50) NOT NULL,
+    countrycode VARCHAR(8) NOT NULL,
+    lat VARCHAR(16),
+    lon VARCHAR(16),
+    geom geometry(POINT)
+);
+
+DROP TABLE IF EXISTS postcodes;
+CREATE TABLE postcodes (
+    id SERIAL PRIMARY KEY,
+    postcode VARCHAR(16) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    countrycode VARCHAR(8) NOT NULL,
+    lat VARCHAR(16),
+    lon VARCHAR(16),
+    geom geometry(POINT)
+);
 -- Create more objects....
 
 -- add user 
