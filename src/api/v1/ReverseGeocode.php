@@ -38,9 +38,9 @@ class ReverseGeocode
         $queryKey = $request->getQueryParam('key');
 
         $response = $this->checkTermsOfUse($queryKey);
-        if ($response['status_code']===200){
+        if ($response['status']===200){
             $response = array(
-                'status_code' => 501,
+                'status' => 501,
                 'status_text' => "Not implemented yet."
             );
         }

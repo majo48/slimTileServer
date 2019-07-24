@@ -47,7 +47,18 @@ class Geocode
         $searchTerm = new SearchTerm($queryAdr);
         if ($searchTerm->code!==200){
             $response = array(
-                'status_code' => $searchTerm->code,
+                'status' => $searchTerm->code,
+                'status_text' => $searchTerm->message
+            );
+        }
+
+        $results = $this->findAddress($searchTerm, $geoLocation);
+        if ($searchTerm->code===200){
+            $response['addresses'] = $results;
+        }
+        else{
+            $response = array(
+                'status' => $searchTerm->code,
                 'status_text' => $searchTerm->message
             );
         }
@@ -55,4 +66,33 @@ class Geocode
         echo json_encode($response);
     }
 
+    /**
+     * Search for the address in database 'gis' table 'gwr'
+     *
+     * @param SearchTerm $searchTerm
+     * @param GeoLocation $geolocation
+     * @return array
+     */
+    private function findAddress($searchTerm, $geolocation)
+    {
+        return array( 
+            'address' => array(
+                    "address_id" =>  "123456789",
+                    "address_type" =>  "building",
+                    "streetnumber" =>  "38",
+                    "street" =>  "Seemattstrasse",
+                    "postcode" =>  "6333",
+                    "city" =>  "Hünenberg See",
+                    "country" =>  "Schweiz",
+                    "countrycode" =>  "CH",
+                    "latitude" =>  47.173224,
+                    "longitude" =>  8.453082,
+                    "location_type" =>  "rooftop",
+                    "source" =>  "[https => //map.geo.admin.ch/..._wohnungs_register)",
+                    "licence" =>  "[https => //www.admin.ch/...msg-id-66999.html",
+                    "version" =>  "Data packaged around 2018-11-03 by OpenAddresses ...",
+                    "display" =>  "Seemattstrasse 38, 6333 Hünenberg See, Schweiz"
+            )
+        );
+    }
 }

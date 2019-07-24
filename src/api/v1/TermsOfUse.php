@@ -22,7 +22,7 @@ trait TermsOfUse
     public function checkTermsOfUse($key)
     {
         $response = array(
-            'status_code' => 200,
+            'status' => 200,
             'status_text' => "OK"
         );
         $msecs = strval(round(microtime(true), 3));
@@ -30,14 +30,14 @@ trait TermsOfUse
         if ($usage===array()){
             // invalid key
             $response = array(
-                'status_code' => 401,
+                'status' => 401,
                 'status_text' => "unauthorized"
             );
         }
         $lapsed = $msecs - $usage['microtime'];
         if (($lapsed <= 1.0)||($usage['countday']>10000)){
             $response = array(
-                'status_code' => 429,
+                'status' => 429,
                 'status_text' => "too many requests"
             );
         }
