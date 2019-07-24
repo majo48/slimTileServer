@@ -63,7 +63,8 @@ class Geocode
             );
         }
 
-        echo json_encode($response);
+        $output = json_encode($response);
+        echo $output;
     }
 
     /**
@@ -75,23 +76,28 @@ class Geocode
      */
     private function findAddress($searchTerm, $geolocation)
     {
-        return array( 
-            'address' => array(
-                    "address_id" =>  "123456789",
-                    "address_type" =>  "building",
-                    "streetnumber" =>  "38",
-                    "street" =>  "Seemattstrasse",
-                    "postcode" =>  "6333",
-                    "city" =>  "Hünenberg See",
-                    "country" =>  "Schweiz",
-                    "countrycode" =>  "CH",
-                    "latitude" =>  47.173224,
-                    "longitude" =>  8.453082,
-                    "location_type" =>  "rooftop",
-                    "source" =>  "[https => //map.geo.admin.ch/..._wohnungs_register)",
-                    "licence" =>  "[https => //www.admin.ch/...msg-id-66999.html",
-                    "version" =>  "Data packaged around 2018-11-03 by OpenAddresses ...",
-                    "display" =>  "Seemattstrasse 38, 6333 Hünenberg See, Schweiz"
+        return $this->getTestAddress();
+    }
+
+    private function getTestAddress()
+    {
+        return array(
+            array(
+                "address_id" =>  "123456789",
+                "address_type" =>  "building",
+                "streetnumber" =>  "38",
+                "street" =>  "Seemattstrasse",
+                "postcode" =>  "6333",
+                "city" =>  "Hünenberg See",
+                "country" =>  "Schweiz",
+                "countrycode" =>  "CH",
+                "latitude" =>  47.173224,
+                "longitude" =>  8.453082,
+                "location_type" =>  "rooftop",
+                "display" =>  "Seemattstrasse 38, 6333 Hünenberg See, Schweiz",
+                "source" =>  "[https => //map.geo.admin.ch/..._wohnungs_register)",
+                "licence" =>  "[https => //www.admin.ch/...msg-id-66999.html",
+                "version" =>  "Data packaged around 2018-11-03 by OpenAddresses ..."
             )
         );
     }

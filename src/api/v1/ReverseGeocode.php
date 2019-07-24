@@ -44,6 +44,7 @@ class ReverseGeocode
                 'status_text' => "Not implemented yet."
             );
         }
-        echo json_encode($response);
+        $output = json_encode($response);
+        echo $output;
     }
 }
