@@ -30,14 +30,16 @@ class SearchTerm
      * Build an object based upon the term given by the user.
      * NOTES:
      * 1. The middleware will automatically convert + (or %20) to whitespace.
-     * 2. Street names and city names can contain whitespace.
-     * 3. Scope: Switzerland and Liechtenstein
+     * 2. Street names and city names can contain numbers, characters & whitespace.
+     * 3. Street numbers contain numbers and/or chars or null, but no whitespace.
+     * 4. Scope: Switzerland and Liechtenstein, postcodes '1000'..'9999'
      *
      * @param $term the seach term as given by the user
      *
      * Variants:
      * street[ streetnumber][, [postcode ]city][, country[code]]
-     * [streetnumber ]street[, [postcode ]city][, country[code]]
+     * streetnumber, postcode, city, country[code] are optional
+     * comma seperated values
      */
     public function __construct($term)
     {
@@ -88,36 +90,34 @@ class SearchTerm
 
         foreach ($this->items as $key => $item){
 
-            $digits = $this->countDigits($item);
-
             if ($this->state===self::STATE_GETSTREET){
+                $ligs = $this->isLastItemGetStreet($key);
                 if ($item===','){
                     $this->state = self::STATE_GETCITY;
                 }
-                elseif ($digits===0){
+                elseif ($ligs===false){
                     $this->street = (empty($this->street))?
                         $item: $this->street.' '.$item;
                 }
-                elseif ($digits>0){
+                elseif ($ligs===true){
                     $this->streetnumber = $item;
                 }
             }
             elseif ($this->state===self::STATE_GETCITY){
+                $isPostcode = $this->isPostcode($item);
                 if ($item===','){
                     $this->state = self::STATE_GETCOUNTRY;
                 }
-                elseif ($digits===0){
+                elseif ($isPostcode===false){
                     $this->city = (empty($this->city))?
                         $item: $this->city.' '.$item;
                 }
-                elseif ($digits>0){
+                elseif ($isPostcode===true){
                     $this->postcode = $item;
                 }
             }
             elseif ($this->state==self::STATE_GETCOUNTRY){
-                if ($digits===0){
-                    $this->countrycode = $this->setCountryCode($item);
-                }
+                $this->countrycode = $this->setCountryCode($item);
                 $this->state = self::STATE_UNDEFINED;
             }
             else{
@@ -128,20 +128,31 @@ class SearchTerm
     }
 
     /**
-     * Count the number of numeric digits in string.
-     * NOTE:
-     * 1. Street numbers can contain trailing letters (A,B..)
-     * 2. Postcodes too (e.g. NL)
-     *
-     * @param string $item
-     * @return int with the number of digits(0..9)
+     * Check to see if an item is the last part of the address segment
+     * @param int $key
+     * @return bool true:end of address segment
      */
-    private function countDigits($item)
+    private function isLastItemGetStreet($key)
     {
-        if (ctype_digit(substr($item, 0, 1))){
-            return preg_match_all( "/[0-9]/", $item );
+        if (array_key_exists($key+1,$this->items)){
+            if ($this->items[$key+1]===','){
+                return true; // next item is a comma
+            }
         }
-        return 0; // does not start with digit
+        else{
+            return true; // $this->items[$key] is last item in array
+        }
+        return false;
+    }
+
+    /**
+     * Check to see if an item is a postalcode (1000..9999).
+     * @param string $item
+     * @return bool true:postcode, false: not a postcode
+     */
+    private function isPostcode($item)
+    {
+        return ((strlen($item)===4)&&(ctype_digit($item))&&($item>='1000'));
     }
 
     /**
