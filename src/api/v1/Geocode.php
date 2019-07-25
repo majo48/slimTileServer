@@ -76,7 +76,8 @@ class Geocode
      */
     private function findAddress($searchTerm, $geolocation)
     {
-        return $this->getTestAddress();
+        $results = $this->container->mypostgres->findAddress($searchTerm, $geolocation);
+        return $results;
     }
 
     private function getTestAddress()

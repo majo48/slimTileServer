@@ -406,4 +406,66 @@ class MyPostgres
         }
     }
 
+    /** -----
+     * Find the specified address (searchterm) in database 'gis' table 'gwr'
+     *
+     * @param SearchTerm $searchTerm
+     * @param GeoLocation $geolocation
+     * @return array
+     */
+    public function findAddress($searchTerm, $geolocation)
+    {
+        try{
+            if ((!empty($searchTerm->street))&&
+                (empty($searchTerm->streetnumber))&&
+                (empty($searchTerm->postcode))&&
+                (empty($searchTerm->city))&&
+                (empty($searchTerm->countrycode))){
+                // street only
+                $sql = "SELECT DISTINCT ".
+                    "street, NULL AS number, postcode, city, countrycode, ".
+                    "MIN(lat) as lat, MIN(lon) as lon, MIN(ST_Distance( geom, ".
+                    "ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist ".
+                    "FROM gwr WHERE (street LIKE '%:street%') ".
+                    "GROUP BY street, postcode, city, countrycode ".
+                    "ORDER BY dist ASC LIMIT 10;";
+                $sql = str_replace(':street', $searchTerm->street, $sql);
+                $sql = str_replace(":lat", strval($geolocation->latitude), $sql);
+                $sql = str_replace(':lon', strval($geolocation->longitude), $sql);
+                $stmt = $this->pdoPostgres->prepare($sql);
+            }
+            else{
+                // conditional
+                $sql = "SELECT DISTINCT ".
+                    "street, number, postcode, city, countrycode, ".
+                    "lat, lon, ST_Distance( geom, ".
+                    "ST_SetSRID(ST_MakePoint(".$geolocation->longitude.
+                    ", ".$geolocation->latitude."),4326)) AS dist ".
+                    "FROM gwr WHERE (street LIKE '%".$searchTerm->street."%') ";
+                if (!empty($searchTerm->streetnumber)){
+                    $sql .= "AND (number LIKE '%".$searchTerm->streetnumber."%') ";
+                }
+                if (!empty($searchTerm->postcode)){
+                    $sql .= "AND (postcode LIKE '%".$searchTerm->postcode."%') ";
+                }
+                if (!empty($searchTerm->city)){
+                    $sql .= "AND (city LIKE '%".$searchTerm->city."%') ";
+                }
+                if (!empty($searchTerm->countrycode)){
+                    $sql .= "AND (countrycode LIKE '%".$searchTerm->countrycode."%') ";
+                }
+                $sql .= "ORDER BY dist ASC LIMIT 10;";
+                $stmt = $this->pdoPostgres->prepare($sql);
+            }
+            // execute the insert statement
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $results;
+        }
+        catch (\Exception $e){
+            $searchTerm->code = 500;
+            $searchTerm->message = 'Database error: '.$e->getMessage();
+        }
+    }
+
 }

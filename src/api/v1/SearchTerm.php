@@ -100,7 +100,13 @@ class SearchTerm
                         $item: $this->street.' '.$item;
                 }
                 elseif ($ligs===true){
-                    $this->streetnumber = $item;
+                    if ($this->hasNumber($item)){
+                        $this->streetnumber = $item;
+                    }
+                    else{
+                        $this->street = (empty($this->street))?
+                            $item: $this->street.' '.$item;
+                    }
                 }
             }
             elseif ($this->state===self::STATE_GETCITY){
@@ -153,6 +159,15 @@ class SearchTerm
     private function isPostcode($item)
     {
         return ((strlen($item)===4)&&(ctype_digit($item))&&($item>='1000'));
+    }
+
+    /**
+     * @param $item
+     * @return bool true: has number, false: not a number in there!
+     */
+    private function hasNumber($item)
+    {
+        return preg_match( '/\d/', $item );
     }
 
     /**
