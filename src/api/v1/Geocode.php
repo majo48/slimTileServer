@@ -53,16 +53,22 @@ class Geocode
         );
     }
 
+    /**
+     * Standard slim entry point for request /api/v1/geocode
+     * @param Slim\Http\Request $request
+     * @param Slim\Http\Response $response
+     * @param array $args
+     */
     public function index($request, $response, $args)
     {
         $ipAddress = $request->getAttribute('ip_address');
         $queryAdr = $request->getQueryParam('adr');
         $queryKey = $request->getQueryParam('key');
-
+        // check terms of use
         $response = $this->checkTermsOfUse($queryKey);
-
+        // check the requestors approximate location
         $geoLocation = new GeoLocation($ipAddress);
-
+        // parse the users search term
         $searchTerm = new SearchTerm($queryAdr);
         if ($searchTerm->code!==200){
             $response = array(
@@ -70,7 +76,7 @@ class Geocode
                 'status_text' => $searchTerm->message
             );
         }
-
+        // find the term in the database
         $results = $this->findAddress($searchTerm, $geoLocation);
         if ($searchTerm->code===200){
             $response['addresses'] = $results;
@@ -81,9 +87,9 @@ class Geocode
                 'status_text' => $searchTerm->message
             );
         }
-
+        // build the response
         $output = json_encode($response);
-        echo $output;
+        return $output;
     }
 
     /**

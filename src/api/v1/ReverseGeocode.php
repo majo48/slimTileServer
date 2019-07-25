@@ -30,6 +30,12 @@ class ReverseGeocode
         $this->container = $container;
     }
 
+    /**
+     * Standard slim entry point for request /api/v1/reversegeocode
+     * @param Slim\Http\Request $request
+     * @param Slim\Http\Response $response
+     * @param array $args
+     */
     public function index($request, $response, $args)
     {
         $ipAddress = $request->getAttribute('ip_address');
@@ -45,6 +51,6 @@ class ReverseGeocode
             );
         }
         $output = json_encode($response);
-        echo $output;
+        return $output;
     }
 }
