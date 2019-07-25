@@ -434,7 +434,7 @@ class MyPostgres
                 (empty($searchTerm->countrycode))){
                 // street only
                 $sql = "SELECT DISTINCT ".
-                    "street, NULL AS number, postcode, city, countrycode, ".
+                    "id, street, NULL AS number, postcode, city, countrycode, ".
                     "MIN(lat) as lat, MIN(lon) as lon, MIN(ST_Distance( geom, ".
                     "ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist ".
                     "FROM gwr WHERE (street LIKE '%:street%') ".
@@ -448,7 +448,7 @@ class MyPostgres
             else{
                 // conditional
                 $sql = "SELECT DISTINCT ".
-                    "street, number, postcode, city, countrycode, ".
+                    "id, street, number, postcode, city, countrycode, ".
                     "lat, lon, ST_Distance( geom, ".
                     "ST_SetSRID(ST_MakePoint(".$geolocation->longitude.
                     ", ".$geolocation->latitude."),4326)) AS dist ".
@@ -475,7 +475,30 @@ class MyPostgres
         }
         catch (\Exception $e){
             $searchTerm->code = 500;
-            $searchTerm->message = 'Database error: '.$e->getMessage();
+            $searchTerm->message = 'Database findAddress error: '.$e->getMessage();
+            $this->container->logger->error($searchTerm->message);
+            return false;
+        }
+    }
+
+    /**
+     * Get the persisted timestamps from the download database.
+     *
+     * @return array with timestamps
+     */
+    public function getTimestamps()
+    {
+        try{
+            $sql = "SELECT countrycode, timestamp FROM downloads;";
+            $stmt = $this->pdoPostgres->prepare($sql);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $results;
+        }
+        catch (\Exception $e){
+            $this->container->logger->error(
+                'Database getTimestamp error: '.$e->getMessage());
+            return array();
         }
     }
 
