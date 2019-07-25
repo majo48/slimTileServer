@@ -181,9 +181,20 @@ class MyPostgres
     {
         try{
             $quote = "'";
+            // delete row
+            $sql = "DELETE FROM downloads WHERE countrycode = ".
+                $quote.$countrycode.$quote.";";
+            $stmt = $this->pdoPostgres->prepare( $sql );
+            $stmt->execute();
+            // insert row
+            $timestamp = date('Y-m-d H:i:s');
             $sql =
-                "UPDATE downloads SET hyperlink = ".$quote.$hyperlink.$quote.
-                " WHERE countrycode = ".$quote.$countrycode.$quote.';';
+                "INSERT INTO downloads (hyperlink,countrycode,timestamp) ".
+                "VALUES(".
+                    $quote.$hyperlink.$quote.",".
+                    $quote.$countrycode.$quote.",".
+                    $quote.$timestamp.$quote.
+                ');';
             $stmt = $this->pdoPostgres->prepare( $sql );
             $stmt->execute();
             return $stmt->rowCount();

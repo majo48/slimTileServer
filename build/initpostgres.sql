@@ -67,7 +67,8 @@ DROP TABLE IF EXISTS downloads;
 CREATE TABLE downloads (
     id SERIAL PRIMARY KEY,
     countrycode VARCHAR(8) UNIQUE NOT NULL,
-    hyperlink VARCHAR(120) NOT NULL
+    hyperlink VARCHAR(120) NOT NULL,
+    timestamp VARCHAR(20) NOT NULL
 );
 
 DROP TABLE IF EXISTS cities;
