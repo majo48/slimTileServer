@@ -436,7 +436,7 @@ class MyPostgres
                 // street only
                 $sql =
                     "SELECT DISTINCT ".
-                    "MIN(id), street, NULL AS number, postcode, city, countrycode, ".
+                    "MIN(id) as id, street, NULL AS number, postcode, city, countrycode, ".
                     "MIN(lat) as lat, MIN(lon) as lon, MIN(ST_Distance( geom, ".
                     "ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist ".
                     "FROM gwr WHERE (street LIKE '%:street%') ".
