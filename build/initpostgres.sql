@@ -32,6 +32,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL  ON SCHEMAS TO gisgroup;
 -- create postgis extensions
 CREATE EXTENSION postgis;
 CREATE EXTENSION hstore;
+CREATE EXTENSION fuzzystrmatch;
 
 -- create objects
 DROP TABLE IF EXISTS gwr;

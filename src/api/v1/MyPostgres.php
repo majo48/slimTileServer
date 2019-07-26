@@ -440,6 +440,7 @@ class MyPostgres
                     "MIN(lat) as lat, MIN(lon) as lon, MIN(ST_Distance( geom, ".
                     "ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist ".
                     "FROM gwr WHERE (street LIKE '%:street%') ".
+                    "OR levenshtein(street, ':street') <= 4".
                     "GROUP BY street, postcode, city, countrycode ".
                     "ORDER BY dist ASC LIMIT 10;";
                 $sql = str_replace(':street', $searchTerm->street, $sql);
@@ -457,16 +458,16 @@ class MyPostgres
                     ", ".$geolocation->latitude."),4326)) AS dist ".
                     "FROM gwr WHERE (street LIKE '%".$searchTerm->street."%') ";
                 if (!empty($searchTerm->streetnumber)){
-                    $sql .= "AND (number LIKE '%".$searchTerm->streetnumber."%') ";
+                    $sql .= "AND (number = '".$searchTerm->streetnumber."') ";
                 }
                 if (!empty($searchTerm->postcode)){
-                    $sql .= "AND (postcode LIKE '%".$searchTerm->postcode."%') ";
+                    $sql .= "AND (postcode = '".$searchTerm->postcode."') ";
                 }
                 if (!empty($searchTerm->city)){
-                    $sql .= "AND (city LIKE '%".$searchTerm->city."%') ";
+                    $sql .= "AND (city = '".$searchTerm->city."') ";
                 }
                 if (!empty($searchTerm->countrycode)){
-                    $sql .= "AND (countrycode LIKE '%".$searchTerm->countrycode."%') ";
+                    $sql .= "AND (countrycode = '".$searchTerm->countrycode."') ";
                 }
                 $sql .= "ORDER BY dist ASC LIMIT 10;";
                 $stmt = $this->pdoPostgres->prepare($sql);
