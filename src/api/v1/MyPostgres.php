@@ -337,7 +337,8 @@ class MyPostgres
     {
         try{
             // prepare statement for insert
-            $sql = 'INSERT INTO '.
+            $sql =
+                'INSERT INTO '.
                 'gwr(street,number,city,region,postcode,countrycode,gwrId,hash,lat,lon) '.
                 'VALUES(:street,:number,:city,:region,:postcode,:countrycode,:gwrId,:hash,:lat,:lon);';
             $stmt = $this->pdoPostgres->prepare($sql);
@@ -433,7 +434,8 @@ class MyPostgres
                 (empty($searchTerm->city))&&
                 (empty($searchTerm->countrycode))){
                 // street only
-                $sql = "SELECT DISTINCT ".
+                $sql =
+                    "SELECT DISTINCT ".
                     "MIN(id), street, NULL AS number, postcode, city, countrycode, ".
                     "MIN(lat) as lat, MIN(lon) as lon, MIN(ST_Distance( geom, ".
                     "ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist ".
@@ -447,7 +449,8 @@ class MyPostgres
             }
             else{
                 // conditional
-                $sql = "SELECT DISTINCT ".
+                $sql =
+                    "SELECT DISTINCT ".
                     "id, street, number, postcode, city, countrycode, ".
                     "lat, lon, ST_Distance( geom, ".
                     "ST_SetSRID(ST_MakePoint(".$geolocation->longitude.
