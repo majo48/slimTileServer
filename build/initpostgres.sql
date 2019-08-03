@@ -48,8 +48,8 @@ CREATE TABLE gwr (
     countrycode VARCHAR(8) NOT NULL,
     gwrId VARCHAR(16),
     hash VARCHAR(32) NOT NULL,
-    lat VARCHAR(16),
-    lon VARCHAR(16),
+    lat DOUBLE PRECISION,
+    lon DOUBLE PRECISION,
     geom geometry(POINT)
 );
 
@@ -72,26 +72,20 @@ CREATE TABLE downloads (
     timestamp VARCHAR(20) NOT NULL
 );
 
-DROP TABLE IF EXISTS cities;
-CREATE TABLE cities (
+DROP TABLE IF EXISTS streets;
+CREATE TABLE streets (
     id SERIAL PRIMARY KEY,
+    street VARCHAR(50) NOT NULL,
+    numbers TEXT,
     city VARCHAR(50) NOT NULL,
+    postcode VARCHAR(16) NOT NULL,
+    region VARCHAR(16) NOT NULL,
     countrycode VARCHAR(8) NOT NULL,
-    lat VARCHAR(16),
-    lon VARCHAR(16),
+    lat DOUBLE PRECISION,
+    lon DOUBLE PRECISION,
     geom geometry(POINT)
 );
 
-DROP TABLE IF EXISTS postcodes;
-CREATE TABLE postcodes (
-    id SERIAL PRIMARY KEY,
-    postcode VARCHAR(16) NOT NULL,
-    city VARCHAR(50) NOT NULL,
-    countrycode VARCHAR(8) NOT NULL,
-    lat VARCHAR(16),
-    lon VARCHAR(16),
-    geom geometry(POINT)
-);
 -- Create more objects....
 
 -- add user 

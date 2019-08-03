@@ -268,6 +268,9 @@ class MyPostgres
                 }
                 fclose($fn);
                 $this->updateGwrGeom($country);
+                // add streets for this country
+                $this->addStreets($country);
+                $this->updateStreetsGeom($country);
             }
         }
         if ($cntr===0){
@@ -315,7 +318,13 @@ class MyPostgres
                 'DELETE FROM gwr WHERE countrycode ='.$quote.$countrycode.$quote.';'
             );
             $stmt->execute();
-            return $stmt->rowCount();
+            $count = $stmt->rowCount();
+            $stmt = $this->pdoPostgres->prepare(
+                'DELETE FROM streets WHERE countrycode ='.$quote.$countrycode.$quote.';'
+            );
+            $stmt->execute();
+            $count = $stmt->rowCount() + $count;
+            return $count;
         }
         catch (Exception $e){
             $this->container->logger->error(
@@ -352,8 +361,8 @@ class MyPostgres
             $stmt->bindValue(':countrycode', $countrycode);
             $stmt->bindValue(':gwrId', $data[9]);
             $stmt->bindValue(':hash', $data[10]);
-            $stmt->bindValue(':lat', $data[1]);
-            $stmt->bindValue(':lon', $data[0]);
+            $stmt->bindValue(':lat', floatval($data[1]));
+            $stmt->bindValue(':lon', floatval($data[0]));
 
             // execute the insert statement
             $stmt->execute();
@@ -370,26 +379,82 @@ class MyPostgres
     }
 
     /**
-     * Update all geometry fields in the postgres database
+     * Update all geometry fields in the postgres database table gwr
+     * @param $countrycode
      * @return integer number of rows updated
      */
     private function updateGwrGeom($countrycode)
     {
         try{
-            // prepare statement for update
             $quote = "'";
             $sql =
                 "UPDATE gwr SET geom = ST_SetSRID(".
-                "ST_MakePoint(cast(LON AS float), cast(LAT AS float)), 4326) ".
+                "ST_MakePoint(LON, LAT), 4326) ".
                 "WHERE countrycode = ".$quote.$countrycode.$quote.';';
             $stmt = $this->pdoPostgres->prepare($sql);
-            // execute the update statement
             $stmt->execute();
             return $stmt->rowCount();
         }
         catch (Exception $e){
             $this->container->logger->error(
-                "Database update error: ".$e->getMessage()
+                "Database update gwr error: ".$e->getMessage()
+            );
+            return 0;
+        }
+    }
+
+    /**
+     * Add all streets with countrycode in the postgres database
+     * @param $countrycode
+     * @return integer number of rows updated
+     */
+    private function addStreets($countrycode)
+    {
+        try{
+            $sql =
+                "INSERT INTO ".
+                "streets(street, numbers, postcode, city, region, countrycode, lat, lon) ".
+                "(   SELECT".
+                "        street, string_agg(number,',') AS numbers, postcode,".
+                "        city, region, countrycode, avg(lat), avg(lon)".
+                "    FROM gwr".
+                "    WHERE (city <> '') IS TRUE".
+                "    AND (postcode <> '') IS TRUE".
+                "    GROUP BY street, postcode, city, region, countrycode".
+                "    ORDER BY street, postcode, city, region, countrycode ASC".
+                ");";
+            $stmt = $this->pdoPostgres->prepare($sql);
+            $stmt->execute();
+            return $stmt->rowCount();
+        }
+        catch (Exception $e){
+            $this->container->logger->error(
+                "Database update streets error: ".$e->getMessage()
+            );
+            return 0;
+        }
+    }
+
+    /**
+     * Update all geometry fields in the postgres database table streets
+     * @param $countrycode
+     * @return integer number of rows updated
+     */
+    private function updateStreetsGeom($countrycode)
+    {
+        try{
+            $quote = "'";
+            $sql =
+                "UPDATE streets SET geom = ST_SetSRID(".
+                "ST_MakePoint(LON, LAT), 4326) ".
+                "WHERE countrycode = ".$quote.$countrycode.$quote.';';
+            $stmt = $this->pdoPostgres->prepare($sql);
+            $stmt->execute();
+            return $stmt->rowCount();
+        }
+        catch (Exception $e){
+            $this->container->logger->error(
+                "Database update gwr error: ".$e->getMessage()
             );
             return 0;
         }
@@ -439,13 +504,13 @@ class MyPostgres
                     "MIN(id) as id, street, NULL AS number, postcode, city, countrycode, ".
                     "MIN(lat) as lat, MIN(lon) as lon, MIN(ST_Distance( geom, ".
                     "ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist ".
-                    "FROM gwr WHERE (street LIKE '%:street%') ".
+                    "FROM streets WHERE (street LIKE '%:street%') ".
                     "OR levenshtein(street, ':street') <= 4".
                     "GROUP BY street, postcode, city, countrycode ".
                     "ORDER BY dist ASC LIMIT 10;";
                 $sql = str_replace(':street', $searchTerm->street, $sql);
-                $sql = str_replace(":lat", strval($geolocation->latitude), $sql);
-                $sql = str_replace(':lon', strval($geolocation->longitude), $sql);
+                $sql = str_replace(":lat", $geolocation->latitude, $sql);
+                $sql = str_replace(':lon', $geolocation->longitude, $sql);
                 $stmt = $this->pdoPostgres->prepare($sql);
             }
             else{

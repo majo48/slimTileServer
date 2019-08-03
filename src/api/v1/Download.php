@@ -25,7 +25,7 @@ class Download
 
     public function index($request, $response, $args)
     {
-        set_time_limit ( 600 ); // > 2 million rows in CH
+        set_time_limit ( 15*60 ); // > 2 million rows in CH
 
         $ipAddress = $request->getAttribute('ip_address');
         $country = strtoupper($request->getQueryParam('country'));

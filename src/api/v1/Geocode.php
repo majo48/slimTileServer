@@ -61,6 +61,7 @@ class Geocode
      */
     public function index($request, $response, $args)
     {
+        $time_begin = microtime(true);
         $ipAddress = $request->getAttribute('ip_address');
         $queryAdr = $request->getQueryParam('adr');
         $queryKey = $request->getQueryParam('key');
@@ -87,6 +88,8 @@ class Geocode
                 'status_text' => $searchTerm->message
             );
         }
+        $time_end = microtime(true);
+        $msecs = round($time_end - $time_begin, 3)*1000;
         // build the response
         $output = json_encode($response);
         return $output;

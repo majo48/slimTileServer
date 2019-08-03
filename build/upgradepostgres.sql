@@ -1,21 +1,28 @@
--- script for updating a osmap database as 'postgres' user
+-- script for upgrading a postgres database as 'postgres' user
 --
 -- USER 'mart'
 -- DATABASE 'gis'
 -- TABLE 'cities' and 'postalcodes', aggregated from data in table 'gwr'
 --
--- UPDATE 'cities' and 'postcodes',
--- Do this once a year, the data herein is not very volatile.
+-- UPGRADE 'cities' and 'postcodes',
 -- ------------------------------------------
 -- PREREQUISITE: TABLE 'GWR' HAS CURRENT DATA
 -- ------------------------------------------
 -- to run this script:
 -- 1.SSH to remote server
 -- 2.$ sudo -u postgres psql
--- 3.# \i /srv/slim/build/updatepostgres.sql
+-- 3.# \i /srv/slim/build/upgradepostgres.sql
 --
 -- remove old items
-DELETE FROM cities;
+DROP TABLE IF EXISTS cities;
+CREATE TABLE cities (
+    id SERIAL PRIMARY KEY,
+    city VARCHAR(50) NOT NULL,
+    countrycode VARCHAR(8) NOT NULL,
+    lat DOUBLE PRECISION,
+    lon DOUBLE PRECISION,
+    geom geometry(POINT)
+);
 --
 -- add cities from table 'gwr'
 INSERT INTO cities(city, countrycode, lat, lon)
@@ -32,12 +39,19 @@ INSERT INTO cities(city, countrycode, lat, lon)
 );
 -- update field 'geom' in table 'cities'
 UPDATE cities
-SET geom = ST_SetSRID(
-    ST_MakePoint( cast(LON AS float), cast(LAT AS float) ),
-    4326
-);
+SET geom = ST_SetSRID( ST_MakePoint( LON, LAT ), 4326 );
+--
 -- remove old items
-DELETE FROM postcodes;
+DROP TABLE IF EXISTS postcodes;
+CREATE TABLE postcodes (
+    id SERIAL PRIMARY KEY,
+    postcode VARCHAR(16) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    countrycode VARCHAR(8) NOT NULL,
+    lat DOUBLE PRECISION,
+    lon DOUBLE PRECISION,
+    geom geometry(POINT)
+);
 --
 -- add postalcodes from table 'gwr'
 INSERT INTO postcodes(postcode, city, countrycode, lat, lon)
@@ -56,7 +70,4 @@ INSERT INTO postcodes(postcode, city, countrycode, lat, lon)
 );
 -- update field 'geom' in table 'postcodes'
 UPDATE postcodes
-SET geom = ST_SetSRID(
-    ST_MakePoint( cast(LON AS float), cast(LAT AS float) ),
-    4326
-);
+SET geom = ST_SetSRID( ST_MakePoint( LON, LAT ), 4326 );
