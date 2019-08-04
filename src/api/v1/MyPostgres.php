@@ -493,51 +493,27 @@ class MyPostgres
     public function findAddress($searchTerm, $geolocation)
     {
         try{
-            if ((!empty($searchTerm->street))&&
-                (empty($searchTerm->streetnumber))&&
-                (empty($searchTerm->postcode))&&
-                (empty($searchTerm->city))&&
-                (empty($searchTerm->countrycode))){
-                // street only
-                $sql =
-                    "SELECT DISTINCT ".
-                    "MIN(id) as id, street, NULL AS number, postcode, city, countrycode, ".
-                    "MIN(lat) as lat, MIN(lon) as lon, MIN(ST_Distance( geom, ".
-                    "ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist ".
-                    "FROM streets WHERE (street LIKE '%:street%') ".
-                    "OR levenshtein(street, ':street') <= 4".
-                    "GROUP BY street, postcode, city, countrycode ".
-                    "ORDER BY dist ASC LIMIT 10;";
-                $sql = str_replace(':street', $searchTerm->street, $sql);
-                $sql = str_replace(":lat", $geolocation->latitude, $sql);
-                $sql = str_replace(':lon', $geolocation->longitude, $sql);
-                $stmt = $this->pdoPostgres->prepare($sql);
+            $sql =
+                "SELECT DISTINCT ".
+                "id, street, number, postcode, city, countrycode, ".
+                "lat, lon, ST_Distance( geom, ".
+                "ST_SetSRID(ST_MakePoint(".$geolocation->longitude.
+                ", ".$geolocation->latitude."),4326)) AS dist ".
+                "FROM gwr WHERE (street LIKE '%".$searchTerm->street."%') ";
+            if (!empty($searchTerm->streetnumber)){
+                $sql .= "AND (number = '".$searchTerm->streetnumber."') ";
             }
-            else{
-                // conditional
-                $sql =
-                    "SELECT DISTINCT ".
-                    "id, street, number, postcode, city, countrycode, ".
-                    "lat, lon, ST_Distance( geom, ".
-                    "ST_SetSRID(ST_MakePoint(".$geolocation->longitude.
-                    ", ".$geolocation->latitude."),4326)) AS dist ".
-                    "FROM gwr WHERE (street LIKE '%".$searchTerm->street."%') ";
-                if (!empty($searchTerm->streetnumber)){
-                    $sql .= "AND (number = '".$searchTerm->streetnumber."') ";
-                }
-                if (!empty($searchTerm->postcode)){
-                    $sql .= "AND (postcode = '".$searchTerm->postcode."') ";
-                }
-                if (!empty($searchTerm->city)){
-                    $sql .= "AND (city = '".$searchTerm->city."') ";
-                }
-                if (!empty($searchTerm->countrycode)){
-                    $sql .= "AND (countrycode = '".$searchTerm->countrycode."') ";
-                }
-                $sql .= "ORDER BY dist ASC LIMIT 10;";
-                $stmt = $this->pdoPostgres->prepare($sql);
+            if (!empty($searchTerm->postcode)){
+                $sql .= "AND (postcode = '".$searchTerm->postcode."') ";
             }
-            // execute the insert statement
+            if (!empty($searchTerm->city)){
+                $sql .= "AND (city = '".$searchTerm->city."') ";
+            }
+            if (!empty($searchTerm->countrycode)){
+                $sql .= "AND (countrycode = '".$searchTerm->countrycode."') ";
+            }
+            $sql .= "ORDER BY dist ASC LIMIT 10;";
+            $stmt = $this->pdoPostgres->prepare($sql);
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $results;
@@ -546,7 +522,42 @@ class MyPostgres
             $searchTerm->code = 500;
             $searchTerm->message = 'Database findAddress error: '.$e->getMessage();
             $this->container->logger->error($searchTerm->message);
-            return false;
+            return array();
+        }
+    }
+
+    /** -----
+     * Find the specified street (searchterm) in database 'gis' table 'gwr'
+     *
+     * @param SearchTerm $searchTerm
+     * @param GeoLocation $geolocation
+     * @return array
+     */
+    public function findStreet($searchTerm, $geolocation)
+    {
+        try{
+            $sql =
+                "SELECT DISTINCT ".
+                "MIN(id) as id, street, NULL AS number, postcode, city, countrycode, ".
+                "MIN(lat) as lat, MIN(lon) as lon, MIN(ST_Distance( geom, ".
+                "ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist ".
+                "FROM streets WHERE (street LIKE '%:street%') ".
+                "OR levenshtein(street, ':street') <= 3".
+                "GROUP BY street, postcode, city, countrycode ".
+                "ORDER BY dist ASC LIMIT 10;";
+            $sql = str_replace(':street', $searchTerm->street, $sql);
+            $sql = str_replace(":lat", $geolocation->latitude, $sql);
+            $sql = str_replace(':lon', $geolocation->longitude, $sql);
+            $stmt = $this->pdoPostgres->prepare($sql);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $results;
+        }
+        catch (\Exception $e){
+            $searchTerm->code = 500;
+            $searchTerm->message = 'Database findFullAddress error: '.$e->getMessage();
+            $this->container->logger->error($searchTerm->message);
+            return array();
         }
     }
 

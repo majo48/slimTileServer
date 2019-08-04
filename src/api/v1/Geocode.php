@@ -80,6 +80,8 @@ class Geocode
         // find the term in the database
         $results = $this->findAddress($searchTerm, $geoLocation);
         if ($searchTerm->code===200){
+            $time_end = microtime(true);
+            $response['msecs'] = round($time_end - $time_begin, 3)*1000;
             $response['addresses'] = $results;
         }
         else{
@@ -88,8 +90,6 @@ class Geocode
                 'status_text' => $searchTerm->message
             );
         }
-        $time_end = microtime(true);
-        $msecs = round($time_end - $time_begin, 3)*1000;
         // build the response
         $output = json_encode($response);
         return $output;
@@ -106,8 +106,17 @@ class Geocode
     {
         $postgres = $this->container->mypostgres;
         $this->timestamps = $postgres->getTimestamps();
-        $results = $postgres->findAddress($searchTerm, $geolocation);
 
+        if ((!empty($searchTerm->street))&&
+            (empty($searchTerm->streetnumber))&&
+            (empty($searchTerm->postcode))&&
+            (empty($searchTerm->city))&&
+            (empty($searchTerm->countrycode))) {
+            $results = $postgres->findStreet($searchTerm, $geolocation);
+        }
+        else{
+            $results = $postgres->findAddress($searchTerm, $geolocation);
+        }
         $output = array();
         foreach ($results as $input){
             $countrycode = $input['countrycode'];
