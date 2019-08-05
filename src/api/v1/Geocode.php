@@ -8,10 +8,10 @@
 
 namespace App\api\v1;
 
-use App\api\v1\TermsOfUse;
 use App\api\v1\GeoLocation;
-use App\api\v1\SearchTerm;
 use App\api\v1\MyPostgres;
+use App\api\v1\SearchTerm;
+use App\api\v1\TermsOfUse;
 
 /**
  * Class Geocode
@@ -26,6 +26,10 @@ class Geocode
     use TermsOfUse{
         checkTermsOfUse as protected;
     }
+
+    const RESULTTYPE_ROOFTOP = 'rooftop'; // building
+    const RESULTTYPE_INTERPOLATED = 'interpolated'; // between buildings (street)
+    const RESULTTYPE_APPROXIMATE = 'approximated'; // city
 
     /** @var array $countries */
     protected  $countries;
@@ -107,15 +111,25 @@ class Geocode
         $postgres = $this->container->mypostgres;
         $this->timestamps = $postgres->getTimestamps();
 
-        if ((!empty($searchTerm->street))&&
-            (empty($searchTerm->streetnumber))&&
-            (empty($searchTerm->postcode))&&
-            (empty($searchTerm->city))&&
-            (empty($searchTerm->countrycode))) {
+        if ($searchTerm->resultType === SearchTerm::RESULT_TYPE_ROOFTOP){
+            $resultType = self::RESULTTYPE_ROOFTOP;
+            $results = $postgres->findAddress($searchTerm, $geolocation);
+            if (count($results)===0){
+                // not found ... try to interpolate
+                $resultType = self::RESULTTYPE_INTERPOLATED;
+                $results = $postgres->findStreet($searchTerm, $geolocation);
+                $results = $this->interpolateAddress(
+                    $postgres, $searchTerm, $geolocation, $results
+                );
+            }
+        }
+        elseif ($searchTerm->resultType === SearchTerm::RESULT_TYPE_INTERPOLED){
+            $resultType = self::RESULTTYPE_INTERPOLATED;
             $results = $postgres->findStreet($searchTerm, $geolocation);
         }
-        else{
-            $results = $postgres->findAddress($searchTerm, $geolocation);
+        elseif ($searchTerm->resultType === SearchTerm::RESULT_TYPE_APPROXIMATE){
+            $resultType = self::RESULTTYPE_APPROXIMATE;
+            $results = $postgres->findCity($searchTerm, $geolocation);
         }
         $output = array();
         foreach ($results as $input){
@@ -131,7 +145,7 @@ class Geocode
                 "countrycode" => $countrycode,
                 "latitude" =>  $input['lat'],
                 "longitude" => $input['lon'],
-                "location_type" =>  "rooftop",
+                "location_type" =>  $resultType,
                 "display" =>  $input['street']." ".$input['number'].", ".
                     $input['postcode']." ".$input['city'].", ".
                     $this->countries[$countrycode]['country'],
@@ -141,6 +155,159 @@ class Geocode
             );
         }
         return $output;
+    }
+
+    /**
+     * Calculate the interpolated address in $searchTerm and results
+     *
+     * @param MyPostgres $postgres
+     * @param SearchTerm $searchTerm
+     * @param GeoLocation $geolocation
+     * @param array $results
+     * @return array
+     */
+    private function interpolateAddress($postgres, $searchTerm, $geolocation, $results)
+    {
+        $output = array();
+        foreach ($results as $result){
+            // look for the first exact match for street, [postcode,] city
+            if ($searchTerm->street === $result['street']){
+                if ($searchTerm->city === $result['city']){
+                    if ((empty($searchTerm->postcode))||
+                        ($searchTerm->postcode === $result['postcode'])){
+                        $lookup = $this->getPair($searchTerm->streetnumber);
+                        $pairs = $this->getPairs($result['number']);
+                        $lower=null; $higher=null;
+                        foreach ($pairs as $pair){
+                            $compared = $this->compareLookup($lookup, $pair);
+                            if ($compared === 'more'){
+                                $lower = $pair;
+                            }
+                            elseif ($compared === 'less'){
+                                $higher = $pair;
+                                break;
+                            }
+                        }
+                        $output = $this->makeSubstitute(
+                            $postgres, $searchTerm, $geolocation, $lower, $higher
+                        );
+                    }
+                }
+            }
+        }
+        return $output;
+    }
+
+    /**
+     * Substitute the location of the search term:
+     * - between two buildings
+     * - near one building
+     * - middle of the street
+     *
+     * @param MyPostgres $postgres
+     * @param SearchTerm $searchTerm
+     * @param GeoLocation $geolocation
+     * @param array $lower
+     * @param array $higher
+     * @return array
+     */
+    private function makeSubstitute($postgres, $searchTerm, $geolocation, $lower, $higher)
+    {
+        $originalnumber = $searchTerm->streetnumber;
+        $output = array();
+
+        if (($lower!==null)&&($higher!==null)){
+            // between two buildings
+            $searchTerm->streetnumber = $lower['raw'];
+            $low = $postgres->findAddress($searchTerm, $geolocation);
+            if (count($low)>0){
+                $low[0]['number'] = $originalnumber;
+                $searchTerm->streetnumber = $higher['raw'];
+                $high = $postgres->findAddress($searchTerm, $geolocation);
+                if (count($high)>0){
+                    $low[0]['lat'] = number_format(($high[0]['lat']+$low[0]['lat'])/2, 7);
+                    $low[0]['lon'] = number_format(($high[0]['lon']+$low[0]['lon'])/2, 7);
+                }
+                $output[] = $low[0];
+            }
+        }
+        elseif (($lower!==null)||($higher!==null)){
+            // near one building
+            $nearer = ($lower===null)? $higher: $lower;
+            $searchTerm->streetnumber = $nearer['raw'];
+            $near = $postgres->findAddress($searchTerm, $geolocation);
+            //todo continue here ...
+        }
+        else {
+            // middle of the street
+            $searchTerm->streetnumber = null;
+            $street = $postgres->findStreet($searchTerm, $geolocation);
+            //todo continue here too ...
+        }
+        return $output;
+    }
+
+    /**
+     * Compare two house numbers (paired)
+     * @param array $lookup
+     * @param array $pair
+     * @return string
+     */
+    private function compareLookup($lookup, $pair)
+    {
+        if ($lookup['number'] < $pair['number']){
+            return 'less';
+        }
+        elseif ($lookup['number'] === $pair['number']){
+            if ($lookup['subfix'] < $pair['subfix']){
+                return 'less';
+            }
+            elseif ($lookup['subfix'] === $pair['subfix']){
+                return 'equal';
+            }
+            return 'more';
+        }
+        elseif ($lookup['number'] > $pair['number']){
+            return 'more';
+        }
+        return 'n/a';
+    }
+
+    /**
+     * Convert comma seperated values to a sorted address number array
+     * @param string $csv
+     * @return array
+     */
+    private function getPairs($csv)
+    {
+        $pairs = array();
+        $numbers = explode(',', $csv);
+        foreach ($numbers as $number){
+            $pairs[] = $this->getPair($number);
+        }
+        usort($pairs, function($a, $b){
+            if ($a['number'] === $b['number']){
+                return ($a['subfix'] < $b['subfix'])? -1 : 1;
+            }
+            return $a['number'] - $b['number'];
+        }); // ordered ascending by number and subfix
+        return $pairs;
+    }
+
+    /**
+     * Convert a house number to a pair: integer and the subfix
+     * @param string $rawNumber
+     * @return array
+     */
+    private function getPair($rawNumber)
+    {
+        $number = preg_replace('/\D/', '', $rawNumber);
+        $subfix = str_replace( $number, '', $rawNumber);
+        return array(
+            'number' => intval($number),
+            'subfix' => $subfix,
+            'raw' => $rawNumber
+        );
     }
 
     /**

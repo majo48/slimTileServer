@@ -537,14 +537,15 @@ class MyPostgres
     {
         try{
             $sql =
-                "SELECT DISTINCT ".
-                "MIN(id) as id, street, NULL AS number, postcode, city, countrycode, ".
-                "MIN(lat) as lat, MIN(lon) as lon, MIN(ST_Distance( geom, ".
-                "ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist ".
-                "FROM streets WHERE (street LIKE '%:street%') ".
-                "OR levenshtein(street, ':street') <= 3".
-                "GROUP BY street, postcode, city, countrycode ".
-                "ORDER BY dist ASC LIMIT 10;";
+                "SELECT DISTINCT 
+                    MIN(id) as id, street, string_agg(numbers, ',') AS number, 
+                    postcode, city, countrycode, 
+                    MIN(lat) as lat, MIN(lon) as lon, 
+                    MIN(ST_Distance( geom, ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist 
+                FROM streets WHERE (street LIKE '%:street%') 
+                OR levenshtein(street, ':street') <= 3 
+                GROUP BY street, postcode, city, countrycode 
+                ORDER BY dist ASC LIMIT 10;";
             $sql = str_replace(':street', $searchTerm->street, $sql);
             $sql = str_replace(":lat", $geolocation->latitude, $sql);
             $sql = str_replace(':lon', $geolocation->longitude, $sql);
@@ -561,7 +562,42 @@ class MyPostgres
         }
     }
 
-    /**
+    /** -----
+     * Find the specified city (searchterm) in database 'gis' table 'gwr'
+     *
+     * @param SearchTerm $searchTerm
+     * @param GeoLocation $geolocation
+     * @return array
+     */
+    public function findCity($searchTerm, $geolocation)
+    {
+        try{
+            $sql1 =
+                "SELECT DISTINCT
+                    MIN(id) AS id, NULL AS street, NULL AS number, postcode, 
+                    city, countrycode, AVG(lat) AS lat, AVG(lon) AS lon, NULL AS dist 
+                FROM streets 
+                WHERE (LOWER(city) LIKE LOWER('%:city%'))";
+            $sql2 = (empty($searchTerm->postcode))? " ":
+                "AND postcode LIKE '%".$searchTerm->postcode."%'";
+            $sql3 =
+                "GROUP BY postcode, city, countrycode 
+                ORDER BY dist ASC LIMIT 10;";
+            $sql = str_replace(':city', $searchTerm->city, $sql1)." ".$sql2." ".$sql3;
+            $stmt = $this->pdoPostgres->prepare($sql);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $results;
+        }
+        catch (\Exception $e){
+            $searchTerm->code = 500;
+            $searchTerm->message = 'Database findFullAddress error: '.$e->getMessage();
+            $this->container->logger->error($searchTerm->message);
+            return array();
+        }
+    }
+
+    /** -----
      * Get the persisted timestamps from the download database.
      *
      * @return array with timestamps

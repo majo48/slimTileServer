@@ -10,15 +10,22 @@ class SearchTerm
     const STATE_GETCITY = 1;
     const STATE_GETCOUNTRY = 2;
     const STATE_UNDEFINED = -1;
+
     const COUNTRY_SWITZERLAND = 'CH';
     const COUNTRY_LIECHTENSTEIN = 'LI';
 
+    const RESULT_TYPE_INTERPOLED = 1; // street
+    const RESULT_TYPE_APPROXIMATE = 2; // city
+    const RESULT_TYPE_ROOFTOP = 3; // building (entrance)
+    const RESULT_TYPE_NA = 0; // none of the above
+
     public  $term;
-    private $csvcnt;    // {0,2,3}
+    private $csvcnt;     // {0,2,3}
     private $items;
-    public  $code;      // 200 is OK
-    public  $message;   // 'OK' or error message
-    private $state;     // current state
+    public  $code;       // 200 is OK
+    public  $message;    // 'OK' or error message
+    private $state;      // current state
+    public  $resultType; // what to expect
 
     public  $street;
     public  $streetnumber;
@@ -46,6 +53,7 @@ class SearchTerm
         $this->term = $term;
         $this->items = $this->buildItems($term);
         $this->parseItems();
+        $this->resultType = $this->getResultType();
     }
 
     /**
@@ -198,5 +206,26 @@ class SearchTerm
         $this->code = 500; // internal server error
         $this->message = 'Illegal country(code)!';
         return 'X2';
+    }
+
+    /**
+     * Define the result type to be expected from the input terms
+     * @return int
+     */
+    private function getResultType()
+    {
+        $hasStreet = !empty($this->street);
+        $hasNumber = !empty($this->streetnumber);
+        $hasCity = !empty($this->city);
+        if ($hasStreet&&$hasNumber&&$hasCity){
+            return self::RESULT_TYPE_ROOFTOP; // find exact match
+        }
+        if ($hasStreet){
+            return self::RESULT_TYPE_INTERPOLED; // number, city: don't care
+        }
+        if(!$hasStreet&&!$hasNumber&&$hasCity){
+            return self::RESULT_TYPE_APPROXIMATE; // postcode: don't care
+        }
+        return self::RESULT_TYPE_NA;
     }
 }
