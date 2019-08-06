@@ -160,7 +160,7 @@ class SearchTerm
     }
 
     /**
-     * Check to see if an item is a postalcode (1000..9999).
+     * Check to see if an item is a postcode (1000..9999).
      * @param string $item
      * @return bool true:postcode, false: not a postcode
      */

@@ -11,7 +11,7 @@ namespace App\api\v1;
 use App\api\v1\GeoLocation;
 use App\api\v1\MyPostgres;
 use App\api\v1\SearchTerm;
-use App\api\v1\TermsOfUse;
+use App\api\v1\GeoTraits;
 
 /**
  * Class Geocode
@@ -23,13 +23,20 @@ use App\api\v1\TermsOfUse;
  */
 class Geocode
 {
-    use TermsOfUse{
+    use GeoTraits{
         checkTermsOfUse as protected;
+        getCountries as protected;
+        convertPersitedInfos as protected;
+        getVersion as protected;
     }
 
     const RESULTTYPE_ROOFTOP = 'rooftop'; // building
     const RESULTTYPE_INTERPOLATED = 'interpolated'; // between buildings (street)
     const RESULTTYPE_APPROXIMATE = 'approximated'; // city
+
+    const ADDRESSTYPE_BUILDING = 'building';
+    const ADDRESSTYPE_POSTCODE = 'postcode';
+    const ADDRESSTYPE_CITY = 'city';
 
     /** @var array $countries */
     protected  $countries;
@@ -43,18 +50,7 @@ class Geocode
     public function __construct($container)
     {
         $this->container = $container;
-        $this->countries = array(
-            'CH' => array(
-                'country' => 'Schweiz',
-                'source' => 'https://map.geo.admin.ch/?layers=ch.bfs.gebaeude_wohnungs_register',
-                'licence' => 'https://www.admin.ch/gov/de/start/dokumentation/medienmitteilungen.msg-id-66999.html'
-            ),
-            'LI' => array(
-                'country' => 'Liechetenstein',
-                'source' => 'http://geodaten.llv.li/geoportal/gebaeudeidentifikator.html',
-                'licence' => 'https://github.com/openaddresses/openaddresses/blob/master/LICENSE'
-            )
-        );
+        $this->countries = $this->getCountries();
     }
 
     /**
@@ -113,6 +109,7 @@ class Geocode
 
         if ($searchTerm->resultType === SearchTerm::RESULT_TYPE_ROOFTOP){
             $resultType = self::RESULTTYPE_ROOFTOP;
+            $addressType = self::ADDRESSTYPE_BUILDING;
             $results = $postgres->findAddress($searchTerm, $geolocation);
             if (count($results)===0){
                 // not found ... try to interpolate
@@ -125,36 +122,21 @@ class Geocode
         }
         elseif ($searchTerm->resultType === SearchTerm::RESULT_TYPE_INTERPOLED){
             $resultType = self::RESULTTYPE_INTERPOLATED;
+            $addressType = self::ADDRESSTYPE_BUILDING;
             $results = $postgres->findStreet($searchTerm, $geolocation);
         }
         elseif ($searchTerm->resultType === SearchTerm::RESULT_TYPE_APPROXIMATE){
             $resultType = self::RESULTTYPE_APPROXIMATE;
+            $addressType = (empty($searchTerm->postcode))?
+                self::ADDRESSTYPE_CITY : self::ADDRESSTYPE_POSTCODE;
             $results = $postgres->findCity($searchTerm, $geolocation);
         }
-        $output = array();
-        foreach ($results as $result){
-            $countrycode = $result['countrycode'];
-            $output[] = array(
-                "address_id" => (string) $result['id'],
-                "address_type" => "building",
-                "streetnumber" => $result['number'],
-                "street" => $result['street'],
-                "postcode" => $result['postcode'],
-                "city" => $result['city'],
-                "country" => $this->countries[$countrycode]['country'],
-                "countrycode" => $countrycode,
-                "latitude" =>  $result['lat'],
-                "longitude" => $result['lon'],
-                "location_type" =>  $resultType,
-                "display" =>  $result['street']." ".$result['number'].", ".
-                    $result['postcode']." ".$result['city'].", ".
-                    $this->countries[$countrycode]['country'],
-                "source" =>  $this->countries[$countrycode]['source'],
-                "licence" =>  $this->countries[$countrycode]['licence'],
-                "version" =>  "Data packaged ".$this->getVersion($countrycode)
-            );
+        else{
+            $resultType = self::RESULTTYPE_APPROXIMATE;
         }
-        return $output;
+        return $this->convertPersitedInfos(
+            $results, $addressType, $resultType
+        );
     }
 
     /**
@@ -225,8 +207,12 @@ class Geocode
                 $searchTerm->streetnumber = $higher['raw'];
                 $high = $postgres->findAddress($searchTerm, $geolocation);
                 if (count($high)>0){
-                    $low[0]['lat'] = number_format(($high[0]['lat']+$low[0]['lat'])/2, 7);
-                    $low[0]['lon'] = number_format(($high[0]['lon']+$low[0]['lon'])/2, 7);
+                    $low[0]['lat'] = number_format(
+                        ($high[0]['lat']+$low[0]['lat'])/2, 7
+                    );
+                    $low[0]['lon'] = number_format(
+                        ($high[0]['lon']+$low[0]['lon'])/2, 7
+                    );
                 }
                 $output[] = $low[0];
             }
@@ -323,20 +309,4 @@ class Geocode
             'raw' => $rawNumber
         );
     }
-
-    /**
-     * Get the persisted download version date from the array
-     * @param string $countrycode
-     * @return string with timestamp
-     */
-    private function getVersion($countrycode)
-    {
-        foreach ($this->timestamps as $timestamp){
-            if ($timestamp['countrycode']===$countrycode){
-                return $timestamp['timestamp'];
-            }
-        }
-        return 'n/a';
-    }
-
 }
