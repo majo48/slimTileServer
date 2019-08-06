@@ -494,12 +494,13 @@ class MyPostgres
     {
         try{
             $sql =
-                "SELECT DISTINCT ".
-                "id, street, number, postcode, city, countrycode, ".
-                "lat, lon, ST_Distance( geom, ".
-                "ST_SetSRID(ST_MakePoint(".$geolocation->longitude.
-                ", ".$geolocation->latitude."),4326)) AS dist ".
-                "FROM gwr WHERE (street LIKE '%".$searchTerm->street."%') ";
+                "SELECT DISTINCT 
+                    id, street, number, postcode, city, countrycode, 
+                    lat, lon, ST_Distance( geom, 
+                    ST_SetSRID(ST_MakePoint(".$geolocation->longitude.", ".
+                    $geolocation->latitude."),4326)) AS dist ".
+                "FROM gwr 
+                 WHERE (street LIKE '%".$searchTerm->street."%') ";
             if (!empty($searchTerm->streetnumber)){
                 $sql .= "AND (number = '".$searchTerm->streetnumber."') ";
             }
@@ -507,7 +508,7 @@ class MyPostgres
                 $sql .= "AND (postcode = '".$searchTerm->postcode."') ";
             }
             if (!empty($searchTerm->city)){
-                $sql .= "AND (city = '".$searchTerm->city."') ";
+                $sql .= "AND (city LIKE '%".$searchTerm->city."%') ";
             }
             if (!empty($searchTerm->countrycode)){
                 $sql .= "AND (countrycode = '".$searchTerm->countrycode."') ";
@@ -575,7 +576,8 @@ class MyPostgres
             $sql1 =
                 "SELECT DISTINCT
                     MIN(id) AS id, NULL AS street, NULL AS number, postcode, 
-                    city, countrycode, AVG(lat) AS lat, AVG(lon) AS lon, NULL AS dist 
+                    city, countrycode, AVG(lat) AS lat, AVG(lon) AS lon, 
+                    MIN(ST_Distance( geom, ST_SetSRID(ST_MakePoint(:lon, :lat),4326))) AS dist 
                 FROM streets 
                 WHERE (LOWER(city) LIKE LOWER('%:city%'))";
             $sql2 = (empty($searchTerm->postcode))? " ":
@@ -584,6 +586,8 @@ class MyPostgres
                 "GROUP BY postcode, city, countrycode 
                 ORDER BY dist ASC LIMIT 10;";
             $sql = str_replace(':city', $searchTerm->city, $sql1)." ".$sql2." ".$sql3;
+            $sql = str_replace(":lat", $geolocation->latitude, $sql);
+            $sql = str_replace(':lon', $geolocation->longitude, $sql);
             $stmt = $this->pdoPostgres->prepare($sql);
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
