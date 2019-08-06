@@ -622,4 +622,35 @@ class MyPostgres
         }
     }
 
+    /** -----
+     * Find the locations nearest to latitude, longitude.
+     * Note: expensive query @ 1500 msecs per request
+     *
+     * @param float $latitude
+     * @param float $longitude
+     * @return array
+     */
+    public function findLocations($latitude, $longitude)
+    {
+        try{
+            $sql =
+                "SELECT
+                     id, street, number, postcode, city, countrycode, lat, lon, 
+                     ST_Distance( geom, ST_SetSRID(ST_MakePoint(:lon, :lat),4326)) AS dist 
+                 FROM gwr
+                 ORDER BY dist ASC LIMIT 10;";
+            $sql = str_replace(":lat", $latitude, $sql);
+            $sql = str_replace(':lon', $longitude, $sql);
+            $stmt = $this->pdoPostgres->prepare($sql);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $results;
+        }
+        catch (\Exception $e){
+            $this->container->logger->error(
+                'Database findLocations error: '.$e->getMessage());
+            return array();
+        }
+    }
+
 }

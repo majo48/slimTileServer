@@ -132,22 +132,22 @@ class Geocode
             $results = $postgres->findCity($searchTerm, $geolocation);
         }
         $output = array();
-        foreach ($results as $input){
-            $countrycode = $input['countrycode'];
+        foreach ($results as $result){
+            $countrycode = $result['countrycode'];
             $output[] = array(
-                "address_id" => (string) $input['id'],
+                "address_id" => (string) $result['id'],
                 "address_type" => "building",
-                "streetnumber" => $input['number'],
-                "street" => $input['street'],
-                "postcode" => $input['postcode'],
-                "city" => $input['city'],
+                "streetnumber" => $result['number'],
+                "street" => $result['street'],
+                "postcode" => $result['postcode'],
+                "city" => $result['city'],
                 "country" => $this->countries[$countrycode]['country'],
                 "countrycode" => $countrycode,
-                "latitude" =>  $input['lat'],
-                "longitude" => $input['lon'],
+                "latitude" =>  $result['lat'],
+                "longitude" => $result['lon'],
                 "location_type" =>  $resultType,
-                "display" =>  $input['street']." ".$input['number'].", ".
-                    $input['postcode']." ".$input['city'].", ".
+                "display" =>  $result['street']." ".$result['number'].", ".
+                    $result['postcode']." ".$result['city'].", ".
                     $this->countries[$countrycode]['country'],
                 "source" =>  $this->countries[$countrycode]['source'],
                 "licence" =>  $this->countries[$countrycode]['licence'],
