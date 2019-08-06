@@ -236,13 +236,27 @@ class Geocode
             $nearer = ($lower===null)? $higher: $lower;
             $searchTerm->streetnumber = $nearer['raw'];
             $near = $postgres->findAddress($searchTerm, $geolocation);
-            //todo continue here ...
+            if (count($near)>0){
+                $near[0]['number'] = $originalnumber;
+                $output[] = $near[0];
+            }
         }
         else {
             // middle of the street
             $searchTerm->streetnumber = null;
-            $street = $postgres->findStreet($searchTerm, $geolocation);
-            //todo continue here too ...
+            $results = $postgres->findStreet($searchTerm, $geolocation);
+            foreach ($results as $key => $result){
+                if ($searchTerm->street === $result['street']){
+                    if ($searchTerm->city === $result['city']){
+                        if ((empty($searchTerm->postcode))||
+                            ($searchTerm->postcode === $result['postcode'])){
+                            $result['number'] = $originalnumber;
+                            $output[] = $result;
+                            break;
+                        }
+                    }
+                }
+            }
         }
         return $output;
     }
