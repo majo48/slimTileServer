@@ -8,16 +8,24 @@
 
 namespace Tests\Functional;
 
+use Tests\Functional\GuzzleTrait;
 
 class RegisterTest extends BaseTestCase
 {
+    use GuzzleTrait{
+        setUp as protected;
+        tearDown as protected;
+    }
+
     /**
      * Test that the register route returns a rendered response containing
      * Email and submit controls plus default key and "terms of use"
      */
     public function testGetRegisterPage()
     {
-        $response = $this->runApp('GET', '/register');
+        //$response = $this->runApp('GET', '/register');
+        $response = $this->http->request('GET', '/register');
+
         // tests ...
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertContains('Email', (string)$response->getBody());
@@ -32,7 +40,9 @@ class RegisterTest extends BaseTestCase
      */
     public function testThanksRegisterPage()
     {
-        $response = $this->runApp('GET', '/register?email=john.doe%40gmail.com');
+        //$response = $this->runApp('GET', '/register?email=john.doe%40gmail.com');
+        $response = $this->http->request('GET', '/register?email=john.doe%40gmail.com');
+
         // tests ...
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertContains('Thank you', (string)$response->getBody());

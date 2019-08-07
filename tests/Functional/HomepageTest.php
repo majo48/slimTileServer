@@ -2,15 +2,23 @@
 
 namespace Tests\Functional;
 
+use Tests\Functional\GuzzleTrait;
+use GuzzleHttp\Exception\ClientException;
+
 class HomepageTest extends BaseTestCase
 {
+    use GuzzleTrait{
+        setUp as protected;
+        tearDown as protected;
+    }
+
     /**
      * Test that the index route returns a rendered response containing the text
      * 'SlimFramework' but not a greeting
      */
     public function testGetHomepageWithoutName()
     {
-        $response = $this->runApp('GET', '/');
+        $response = $this->http->request('GET', '/');
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertContains('SlimFramework', (string)$response->getBody());
@@ -23,7 +31,7 @@ class HomepageTest extends BaseTestCase
      */
     public function testGetAboutWithoutName()
     {
-        $response = $this->runApp('GET', '/about');
+        $response = $this->http->request('GET', '/about');
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertContains('SlimFramework', (string)$response->getBody());
@@ -36,9 +44,14 @@ class HomepageTest extends BaseTestCase
      */
     public function testGetHomepageWithGreeting()
     {
-        $response = $this->runApp('GET', '/name');
-
-        $this->assertEquals(404, $response->getStatusCode());
+        try{
+            $response = $this->http->request('GET', '/name'); // crash
+            $this->assertNotEquals(404, $response->getStatusCode());
+        }
+        catch (ClientException $e){
+            $response = $e->getResponse();
+            $this->assertEquals(404, $response->getStatusCode());
+        }
     }
 
     /**
@@ -46,9 +59,13 @@ class HomepageTest extends BaseTestCase
      */
     public function testPostHomepageNotAllowed()
     {
-        $response = $this->runApp('POST', '/', ['test']);
-
-        $this->assertEquals(405, $response->getStatusCode());
-        $this->assertContains('Method not allowed', (string)$response->getBody());
+        try{
+            $response = $this->http->request('POST', '/', ['test']); // crash
+            $this->assertNotEquals(405, $response->getStatusCode());
+        }
+        catch (ClientException $e){
+            $response = $e->getResponse();
+            $this->assertEquals(405, $response->getStatusCode());
+        }
     }
 }
