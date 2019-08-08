@@ -23,7 +23,6 @@ class RegisterTest extends BaseTestCase
      */
     public function testGetRegisterPage()
     {
-        //$response = $this->runApp('GET', '/register');
         $response = $this->http->request('GET', '/register');
 
         // tests ...
@@ -40,7 +39,6 @@ class RegisterTest extends BaseTestCase
      */
     public function testThanksRegisterPage()
     {
-        //$response = $this->runApp('GET', '/register?email=john.doe%40gmail.com');
         $response = $this->http->request('GET', '/register?email=john.doe%40gmail.com');
 
         // tests ...
