@@ -31,4 +31,5 @@ Discontinued the creation of a tileserver; the available code is not very flexib
 
 **Copyright**:
 
-Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+- Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+- See also: GitHub, Terms of Service (https://help.github.com/en/articles/github-terms-of-service)
