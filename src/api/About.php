@@ -10,6 +10,12 @@ namespace App\api;
 
 use Slim\Container;
 
+/**
+ * Class About
+ * @package App\api
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+ */
 class About
 {
     /** @var Container $container */

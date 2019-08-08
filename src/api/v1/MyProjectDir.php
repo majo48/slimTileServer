@@ -2,6 +2,12 @@
 
 namespace App\api\v1;
 
+/**
+ * Trait MyProjectDir
+ * @package App\api\v1
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+ */
 trait MyProjectDir
 {
     /**

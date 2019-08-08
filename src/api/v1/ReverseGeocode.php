@@ -17,6 +17,8 @@ use App\api\v1\Geocode;
  * @package App\api\v1
  *
  * Route pattern: /api/v1/reversegeocode?lat=AAA&lng=BBB&key=CCC
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
  */
 class ReverseGeocode
 {

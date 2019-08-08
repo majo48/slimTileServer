@@ -28,3 +28,7 @@ Discontinued the creation of a tileserver; the available code is not very flexib
   * mapnik: not flexible enough, ~~outdated, DIY stuff~~ (haven't tried https://www.linuxbabe.com/ubuntu/openstreetmap-tile-server-ubuntu-18-04-osm yet)
   * mapserver: ambiguous and outdated docs, also DIY
 * use Google Maps, Bing, Maptiler instead
+
+**Copyright**:
+
+Copyright (C) 2019  Martin Jonasse, see LICENCE.md.

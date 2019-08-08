@@ -12,6 +12,8 @@ namespace App\api\v1;
  *
  * Class MyCache
  * @package App\api\v1
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
  */
 class MyCache
 {

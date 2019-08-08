@@ -6,6 +6,12 @@ namespace App\api\v1;
 use PHPMailer\PHPMailer\PHPMailer;
 use Slim\Container;
 
+/**
+ * Class MyMail
+ * @package App\api\v1
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+ */
 class MyMail
 {
     /** @var Container $container */

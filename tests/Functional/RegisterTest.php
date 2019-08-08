@@ -10,6 +10,12 @@ namespace Tests\Functional;
 
 use Tests\Functional\GuzzleTrait;
 
+/**
+ * Class RegisterTest
+ * @package Tests\Functional
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+ */
 class RegisterTest extends BaseTestCase
 {
     use GuzzleTrait{

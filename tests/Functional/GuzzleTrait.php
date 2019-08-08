@@ -17,6 +17,8 @@ use GuzzleHttp;
  *
  * Trait GuzzleTrait
  * @package Tests\Functional
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
  */
 trait GuzzleTrait
 {

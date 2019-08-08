@@ -10,6 +10,12 @@ namespace App\api\v1;
 
 use GeoIp2\Database\Reader;
 
+/**
+ * Class GeoLocation
+ * @package App\api\v1
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+ */
 class GeoLocation
 {
     use MyProjectDir{

@@ -7,6 +7,12 @@ use PDO;
 use DOMDocument;
 use ZipArchive;
 
+/**
+ * Class MyPostgres
+ * @package App\api\v1
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+ */
 class MyPostgres
 {
     use MyProjectDir{

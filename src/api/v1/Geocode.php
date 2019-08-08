@@ -20,6 +20,8 @@ use App\api\v1\GeoTraits;
  * Route pattern: /api/v1/geocode?adr=AAA&key=BBB
  * where AAA is coded with plus signs or %20 for spaces,
  * format: application/x-www-form-urlencoded.
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
  */
 class Geocode
 {

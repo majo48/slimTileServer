@@ -12,6 +12,8 @@ use PDO;
  *
  * Route pattern: /api/v1/download?country=XX
  * Where XX = {CH,LI}
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
  */
 class Download
 {

@@ -12,6 +12,12 @@ use PDO;
 use Slim\Container;
 use PHPMailer\PHPMailer\PHPMailer;
 
+/**
+ * Class Register
+ * @package App\api
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+ */
 class Register
 {
     /** @var Container $container */

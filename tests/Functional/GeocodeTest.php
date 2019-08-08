@@ -5,6 +5,12 @@ namespace Tests\Functional;
 use Tests\Functional\GuzzleTrait;
 use GuzzleHttp\Exception\ClientException;
 
+/**
+ * Class GeocodeTest
+ * @package Tests\Functional
+ *
+ *  Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+ */
 class GeocodeTest extends BaseTestCase
 {
     use GuzzleTrait{

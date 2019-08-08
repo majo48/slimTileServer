@@ -3,7 +3,12 @@
 
 namespace App\api\v1;
 
-
+/**
+ * Class SearchTerm
+ * @package App\api\v1
+ *
+ * Copyright (C) 2019  Martin Jonasse, see LICENCE.md.
+ */
 class SearchTerm
 {
     const STATE_GETSTREET = 0;
